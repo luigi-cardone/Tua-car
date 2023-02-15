@@ -52,7 +52,6 @@ app.use('/deleteSchedule', deleteSchedule)
 app.use('/towns', towns)
 app.post('/webfiles/exports/', (req, res) =>{
     const file_path = req.body.file_path
-    console.log(file_path)
     res.sendFile("./webfiles/exports/"+file_path, {root: __dirname})
 })
 app.use(verifyJWT)
