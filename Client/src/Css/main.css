@@ -1,0 +1,54 @@
+
+.form-central {
+  width: 100%;
+  max-width: 400px;
+  padding: 15px;
+  margin: auto;
+}
+
+.form-central .checkbox {
+  font-weight: 400;
+}
+
+.form-central .form-floating:focus-within {
+  z-index: 2;
+}
+
+/* .form-central input[type="email"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.form-central input[type="password"] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+} */
+
+.invalid-feedback{
+    font-weight: 700;
+    /* color: #ff606e; */
+}
+
+.valid-feedback{
+   /* color: #2acc80; */
+}
+.dashboardcode-bsmultiselect .dropdown-menu{
+    max-height: 400px;
+    overflow-y: scroll;
+}
+.dashboardcode-bsmultiselect ul.form-control {
+    padding-top: 24px;
+}
+
+.bg-platform-01 {
+    background-color: #f9423a!important;/*db848c */
+}
+.bg-platform-02 {
+    background-color: #f5f200!important;/*ffe599 */
+}
+
+.text-responsive {
+ font-size: calc(100% + 0.7vw - 1.5vh);
+}
