@@ -33,6 +33,7 @@ app.use(credentials)
 app.use(cors(corsOptions))
 app.use(cookieParser())
 
+app.use(express.static(path.join(__dirname + "/public")))
 app.use('/register', register)
 app.use('/login', login)
 app.use('/refresh', refresh)
@@ -49,8 +50,15 @@ app.post('/webfiles/exports/', (req, res) =>{
     const file_path = req.body.file_path
     res.sendFile("./webfiles/exports/"+file_path, {root: __dirname})
 })
+app.get('/*', function(req, res) {
+    res.sendFile(path.join(__dirname, '/public/index.html'), function(err) {
+      if (err) {
+        res.status(500).send(err)
+      }
+    })
+  })
 app.use(verifyJWT)
 
-app.listen(8000, ()=>{
+app.listen(process.env.PORT || 8000, ()=>{
     console.log("Backend started")
 })
