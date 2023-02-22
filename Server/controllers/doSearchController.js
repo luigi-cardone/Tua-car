@@ -87,7 +87,8 @@ async function writeCsv(data, searchOptions, db, user_id, callback) {
         if(err) return JSON.stringify(err)
         const response = {
           fileName: fileName,
-          fileNamePath: `${filePath}/${fileName}`
+          fileNamePath: `${filePath}/${fileName}`,
+          searchCnt: cnt
         }
         if (typeof callback == "function") callback(response);
 

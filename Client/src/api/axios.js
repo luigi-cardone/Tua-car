@@ -1,5 +1,6 @@
 import axios from "axios";
-const BASE_URL = 'https://tua-car.onrender.com'
+const BASE_URL = 'http://localhost:8000'
+//https://new.leads.tua-car.it
 export default axios.create({
     baseURL: BASE_URL
 })

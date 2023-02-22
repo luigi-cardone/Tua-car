@@ -40,6 +40,20 @@ export const PlatformCard = (props) => {
         mile += counter
     }
 
+
+    useEffect(() =>{
+        const setSelectedPrivinces = () =>{
+            var towns = []
+            props.assignedTowns.forEach((town) =>{
+                towns.push(town.comune)
+            })
+            setTaskData({...taskData, geoTowns : towns})
+        }
+
+        setSelectedPrivinces()
+        props.taskDataHandler(taskData);
+        }, [props.assignedTowns])
+
     const getProvincesByRegion = async (region_id) =>{
         try {
             const res = await axiosPrivate.get("/geoData/provincesByregion"+region_id);
@@ -64,9 +78,9 @@ export const PlatformCard = (props) => {
           }
     }
 
-    const InputHandler = (task) =>{
-        props.taskDataHandler({...taskData,geoTowns: task});
-    }
+    useEffect(() =>{
+        props.taskDataHandler(taskData);
+    }, [taskData])
 
     useEffect (() =>{
         const handleChange = () =>{
@@ -132,7 +146,7 @@ export const PlatformCard = (props) => {
                             <p>La ricerca verrà effetuata solo nei comuni a te assegnati</p>
                             <div>
                                     <h6>
-                                {props.assignedTowns.map((town, key) =>{
+                                {props.assignedTowns.map((town) =>{
                                         return town.comune + ", "
                                 })}
                                             </h6>
@@ -181,10 +195,7 @@ export const PlatformCard = (props) => {
                                     isMulti
                                     name="Towns"
                                     options={townOptions}
-                                    onChange={async e => {
-                                        setTaskData({...taskData, geoTowns : e.map((town) => town.value)})
-                                        InputHandler(e.map((town) => town.value))
-                                    }
+                                    onChange={async e => setTaskData({...taskData, geoTowns : e.map((town) => town.value)})
                                     }
                                      />
                                 </div>

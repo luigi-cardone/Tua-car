@@ -5,11 +5,15 @@ import Modal from 'react-bootstrap/Modal';
 export const ErrorModal = (props) => {
   const [show, setShow] = useState(false);
 
-  const handleClose = () => setShow(false);
+  const handleClose = () => {
+    setShow(false)
+    props.closeModal()
+  };
 
   useEffect(() =>{
     setShow(props.show)
   }, [props.show])
+
 
   return (
     <Modal

@@ -4,8 +4,14 @@ import { useEffect, useState } from "react";
 import useAxiosPrivate from '../hooks/useAxiosPrivate'
 import Platform from "../Classes/platform";
 import useAuth from "../hooks/useAuth";
+import ErrorModal from '../Views/errorModal';
+import SuccessModal from '../Views/successModal'
+import Spinner from "react-bootstrap/esm/Spinner";
 
 export const Dashboard = () => {
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState({error: false, message: ""})
+  const [success, setSuccess] = useState({success: false, message: ""})
   const axiosPrivate = useAxiosPrivate()
   const [assignedTowns, setAssignedTowns] = useState([]);
   const [regions, setRegions] = useState([]);
@@ -60,7 +66,6 @@ export const Dashboard = () => {
           setCurrentTask(data);
           var schedule_content = JSON.parse(data.schedule_content)
           schedule_content = Object.values(schedule_content)
-          console.log(data)
           setCurrentTaskContent(schedule_content)
         }
       } catch (err) {
@@ -73,25 +78,31 @@ export const Dashboard = () => {
   }, [auth]);
 
   const platforms = [new Platform("Autoscout", "#f5f200", "platform-01"), 
-                   new Platform("Subito", "#f9423a", "platform-02"),
-                   new Platform("Facebook", "#0268e2", "platform-03")];
+                   new Platform("Subito", "#f9423a", "platform-02")];
 
 
 
   const sendTask = async (action) =>{
     try {
+      setIsLoading(true)
+      var responseMessage = ""
       if(action === "send_scheduling_data"){
-        const res = await axiosPrivate.post("/scheduledSearch", newTask);   
-        
+        const res = await axiosPrivate.post("/scheduledSearch", newTask);
+        responseMessage = res.data
         console.log(res)
       }
       else{
         const res = await axiosPrivate.post("/search", newTask);   
+        responseMessage = res.data
         console.log(res)
       }
+      const msg = `E' stato creato il file${responseMessage?.fileName} ${responseMessage?.searchCnt > 0 ? ` con un totale di ${responseMessage?.searchCnt}` : ". Non è stato trovato nessun nuovo risultato, prova a cambiare i parametri di ricerca"}`
+      console.log(msg)
+      setSuccess({success: true, message: msg})
     } catch (err) {
       console.log(err);
     }
+    setIsLoading(false)
   }
 
   const taskDataHandler = (data) =>{
@@ -135,8 +146,22 @@ export const Dashboard = () => {
     }
   }
 
+  const closeModal = () =>{
+    setSuccess(false)
+    setError(false)
+  }
+
   return (
     <>
+    {isLoading && 
+                        (       
+                            <div style={{ top: "0%",  left : "0%", background: "rgba(0, 0, 0, .5)", position: "absolute", width : "100%", height: "100%", zIndex: 90}}>     
+                                <Spinner style={{position: "absolute",top: "50%",  left : "50%", zIndex: 100}} variant='warning' animation='grow'/>
+                            </div>
+                            )            
+                            }
+      <ErrorModal closeModal={closeModal} title="Errore" message={error.message} show={error.error}/>
+      <SuccessModal closeModal={closeModal} title="Operazione eseguita" message={success.message} show={success.success}/>
       <div className="row">
         <div className="col py-3">
           <h5 className="text-center">
@@ -219,7 +244,6 @@ export const Dashboard = () => {
                   {
                     <div className="row">
                       <div className="col mb-2">
-                        {console.log(currentTaskContent)}
                         {currentTaskContent.length > 0 ? (
                           <div className="alert alert-success" role="alert">
                             <div className="row align-items-center">
