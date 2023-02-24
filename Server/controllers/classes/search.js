@@ -1,4 +1,13 @@
 import fs from 'fs'
+
+/*
+Classe che definisce l'oggetto ricerca composto dai parametri di ricerca.
+I metodi, azioni, possibili sono le seguenti
+-> Creare la query in base ai parametri ottenuti
+-> Prendere i duplicati con i comuni già cercati
+-> Scrivere i duplicati con i comuni cercati
+*/
+
 const DUPLICATES_PATH = "webfiles/duplicates/";
 const db_platform = {
     "platform-01": "cars_autoscout",

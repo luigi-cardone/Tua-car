@@ -8,9 +8,15 @@ const db_platform = {
   }
 
 const EXPORTS_PATH = "webfiles/exports/"
+
 const doSearch = async (req, res) =>{
     const search_params = req.body.schedule_content
     const user_id = req.body.user_id
+    const result = await doSearchHandler(user_id, search_params)
+    return res.json(result)
+}
+
+const doSearchHandler = async (user_id, search_params) =>{
     const csvData = []
     var loop_counter = 0
     if(search_params !== {}){
@@ -18,16 +24,15 @@ const doSearch = async (req, res) =>{
             const search = new Search({...platform_params, user_id : user_id})
             const search_query = search.fabricateSearchQuery()
             db.query(search_query, (err, results)=>{
-                if(err) return res.json(err)
+                if(err) return err
                 var duplicates_query = "select duplicates_file from searches_duplicates where user_id= ? and platform= ? "
                 db.query(duplicates_query, [user_id, db_platform[platform_params.platform]] , async (err, data)=>{
-                    if(err) return res.json(err)
+                    if(err) return err
                     console.log(data)
                     search.getDuplicates(data, db, async (duplicates) =>{
                         var flippedDuplicates = (duplicates.length > 0) ? Object.fromEntries(duplicates.map((item) => [item, true])) : {};
                         var returnData = []
                         var newDuplicates = []
-                        console.log(results.length)
                         if(results.length > 0){
                             results.forEach((result) =>{
                                 if (JSON.stringify(flippedDuplicates) === '{}'){
@@ -48,7 +53,7 @@ const doSearch = async (req, res) =>{
                         loop_counter++
                         if(loop_counter === Object.entries(search_params).length){
                             await writeCsv(csvData, search_params, db, user_id, (csv_file) =>{
-                                return res.json(csv_file)
+                                return csv_file
                             })
                         }
                     })
