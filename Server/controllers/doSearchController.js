@@ -1,7 +1,7 @@
-import db from '../config/dataBaseOptions.mjs'
-import Search from './classes/search.mjs'
+import db from '../config/dataBaseOptions.js'
+import Search from './classes/search.js'
 import fs from 'fs'
-import Mailer from './classes/mailer.mjs'
+import Mailer from './classes/mailer.js'
 const db_platform = {
     "platform-01": "cars_autoscout",
     "platform-02": "cars_subito"

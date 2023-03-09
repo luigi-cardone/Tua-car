@@ -1,5 +1,5 @@
 import express from "express";
-import getSearchesHistory from '../controllers/searchesController.mjs'
+import getSearchesHistory from '../controllers/searchesController.js'
 
 const router = express.Router()
 

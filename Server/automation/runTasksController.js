@@ -1,5 +1,5 @@
-import db from '../config/dataBaseOptions.mjs'
-import doSearchHandler from '../controllers/doSearchController.mjs';
+import db from '../config/dataBaseOptions.js'
+import doSearchHandler from '../controllers/doSearchController.js';
 const db_platform = {
     "platform-01": "cars_autoscout",
     "platform-02": "cars_subito"

@@ -1,4 +1,4 @@
-import Mailer from './classes/mailer.mjs'
+import Mailer from './classes/mailer.js'
 
 const search_params = {
     "user_id": 11,

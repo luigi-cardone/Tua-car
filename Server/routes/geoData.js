@@ -1,5 +1,5 @@
 import express from "express";
-import {getRegions, getStateFromRegion, getCityFromState, getLocationFromZip} from '../controllers/geoDataController.mjs'
+import {getRegions, getStateFromRegion, getCityFromState, getLocationFromZip} from '../controllers/geoDataController.js'
 
 const router = express.Router()
 

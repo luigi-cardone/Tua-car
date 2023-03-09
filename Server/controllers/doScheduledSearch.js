@@ -1,4 +1,4 @@
-import db from '../config/dataBaseOptions.mjs'
+import db from '../config/dataBaseOptions.js'
 import moment from 'moment'
 const db_platform = {
     "platform-01": "cars_autoscout",

@@ -1,8 +1,8 @@
 import express from "express";
-import getTowns from '../controllers/townsController.mjs'
+import doSearch from '../controllers/doSearchController.js'
 
 const router = express.Router()
 
-router.post('/', getTowns)
+router.post('/', doSearch)
 
 export default router

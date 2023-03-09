@@ -1,4 +1,4 @@
-import db from '../config/dataBaseOptions.mjs'
+import db from '../config/dataBaseOptions.js'
 const getRegions = (req, res) =>{
     const q = "SELECT `regione`,`id_regione`  FROM `italy_regions`"
     db.query(q, (err, data)=>{

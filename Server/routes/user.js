@@ -1,5 +1,5 @@
 import express from "express";
-import {getUserCityData, getUserBioData, getUserScheduledTask, updateUserBioData, deleteUser, updateUserCityData, updateSpokiData} from '../controllers/userContoller.mjs'
+import {getUserCityData, getUserBioData, getUserScheduledTask, updateUserBioData, deleteUser, updateUserCityData, updateSpokiData} from '../controllers/userContoller.js'
 const router = express.Router({mergeParams: true})
 
 router.get("/user/:user_id", getUserBioData)

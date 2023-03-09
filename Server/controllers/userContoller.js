@@ -1,4 +1,4 @@
-import db from '../config/dataBaseOptions.mjs'
+import db from '../config/dataBaseOptions.js'
 
 const getUserBioData = (req, res) =>{
     const user_id = req.params.user_id

@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs'
-import db from '../config/dataBaseOptions.mjs'
+import db from '../config/dataBaseOptions.js'
 import math from 'math'
-import roles from '../config/userRoles.mjs'
+import roles from '../config/userRoles.js'
 
 const handleNewUser = async (req, res) =>{
     const user = req.body

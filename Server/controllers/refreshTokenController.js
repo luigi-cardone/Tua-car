@@ -1,4 +1,4 @@
-import db from '../config/dataBaseOptions.mjs'
+import db from '../config/dataBaseOptions.js'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 

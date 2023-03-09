@@ -1,4 +1,4 @@
-import db from '../config/dataBaseOptions.mjs'
+import db from '../config/dataBaseOptions.js'
 
 const getTowns = (req, res) =>{
     var towns = req.body
