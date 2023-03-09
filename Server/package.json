@@ -2,12 +2,12 @@
   "name": "server",
   "version": "1.0.0",
   "description": "",
-  "exports": "./app.js",
+  "exports": "./app.cjs",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon app.js",
-    "start": "node app.js"
+    "dev": "nodemon app.cjs",
+    "start": "node app.cjs"
   },
   "keywords": [],
   "author": "",
