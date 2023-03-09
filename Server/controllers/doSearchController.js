@@ -12,15 +12,20 @@ const EXPORTS_PATH = "webfiles/exports/"
 const doSearch = async (req, res) =>{
     const search_params = req.body.schedule_content
     const user_id = req.body.user_id
-    const csvFile = await doSearchHandler(user_id, search_params)
-    const mail = new Mailer("luigi@macoweb.eu", "Nuova ricerca effettuata")
-    const search_options = Object.keys(search_params).map(platform => search_params[platform])
-    console.log(csvFile)
-    mail.SendEmail({user: user_id, options: search_options, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
-    return res.json(csvFile)
+    const csvFile = await doSearchHandler(user_id, search_params, (csvFile =>{
+        const mail = new Mailer(req.body.email, "Nuova ricerca effettuata")
+        const search_options = Object.keys(search_params).map(platform => {
+            var options = search_params[platform]
+            options = {...options, platform: db_platform[platform]}
+            return options
+        })
+        mail.SendEmail({user: req.body.name, options: {search_options}, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
+        
+        return res.json(csvFile)
+    }))
 }
 
-const doSearchHandler = async (user_id, search_params) =>{
+const doSearchHandler = async (user_id, search_params, callback) =>{
     const csvData = []
     var loop_counter = 0
     if(search_params !== {}){
@@ -28,22 +33,25 @@ const doSearchHandler = async (user_id, search_params) =>{
             const search = new Search({...platform_params, user_id : user_id})
             const search_query = search.fabricateSearchQuery()
             db.query(search_query, (err, results)=>{
-                if(err) return err
+                if(err) if (typeof callback == "function") callback(err);
                 var duplicates_query = "select duplicates_file from searches_duplicates where user_id= ? and platform= ? "
                 db.query(duplicates_query, [user_id, db_platform[platform_params.platform]] , async (err, data)=>{
-                    if(err) return err
+                    if(err) if (typeof callback == "function") callback(err);
                     search.getDuplicates(data, db, async (duplicates) =>{
                         var flippedDuplicates = (duplicates.length > 0) ? Object.fromEntries(duplicates.map((item) => [item, true])) : {};
                         var returnData = []
                         var newDuplicates = []
+                        console.log("Results found: " + results.length)
                         if(results.length > 0){
                             results.forEach((result) =>{
                                 if (JSON.stringify(flippedDuplicates) === '{}'){
+                                    console.log(result.id + "added")
                                     newDuplicates.push(result.id);
                                     returnData.push(result);
                                 }
                                 else{
                                     if (!flippedDuplicates[result.id]) {
+                                        console.log(result.id + " added")
                                         newDuplicates.push(result.id);
                                         returnData.push(result);
                                         }
@@ -51,12 +59,12 @@ const doSearchHandler = async (user_id, search_params) =>{
                             })
                         }
                         var nw = duplicates.concat(newDuplicates);
-                        const wd = await search.writeDuplicates(nw, db)
+                        await search.writeDuplicates(nw, db)
                         csvData.push(returnData)
                         loop_counter++
                         if(loop_counter === Object.entries(search_params).length){
                             await writeCsv(csvData, search_params, db, user_id, (csv_file) =>{
-                                return csv_file
+                                if (typeof callback == "function") callback(csv_file);
                             })
                         }
                     })

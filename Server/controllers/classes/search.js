@@ -49,7 +49,6 @@ export default class Search{
                     if (typeof callback == "function") callback(err)
                 }
                 fs.writeFile(DUPLICATES_PATH + file_name, JSON.stringify(returnData),  {flag: "w"}, (error) => {
-                    console.log("non ci sono dati")
                     if (error) {
                         if (typeof callback == "function") callback(error)
                     }
@@ -58,7 +57,6 @@ export default class Search{
                 });
             }
         else{
-            console.log("Ci sono dati")
             fs.readFile(DUPLICATES_PATH + duplicates[0].duplicates_file, 'utf8', (err, data) => {
                 if (err) {
                     console.error(err);

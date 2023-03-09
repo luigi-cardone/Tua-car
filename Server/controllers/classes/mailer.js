@@ -2,11 +2,14 @@ import nodemailer from 'nodemailer'
 import hbs from 'nodemailer-express-handlebars'
 import path from 'path'
 import dotenv from 'dotenv'
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 export default class Mailer {
     constructor(mailTo, subject){
-        var mail = "lcardone22@gmail.com"
         dotenv.config()
-        console.log(process.env.EMAIL)
         this.transporter = nodemailer.createTransport({
             service : "gmail",
             tls: {
@@ -24,11 +27,9 @@ export default class Mailer {
         }
         const handlebarOptions = {
             viewEngine: {
-                extName: ".handlebars",
-                partialDir: "/controllers/classes/views/",
                 default: false
             },
-            viewPath: "/controllers/classes/views/",
+            viewPath: path.join(__dirname, "/views/"),
             extName: ".handlebars"
         }
         this.transporter.use("compile", hbs(handlebarOptions))
