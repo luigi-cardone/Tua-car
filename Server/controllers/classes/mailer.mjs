@@ -1,0 +1,58 @@
+import nodemailer from 'nodemailer'
+import hbs from 'nodemailer-express-handlebars'
+import path from 'path'
+import dotenv from 'dotenv'
+export default class Mailer {
+    constructor(mailTo, subject){
+        var mail = "lcardone22@gmail.com"
+        dotenv.config()
+        console.log(process.env.EMAIL)
+        this.transporter = nodemailer.createTransport({
+            service : "gmail",
+            tls: {
+                rejectUnauthorized: false
+            },
+            auth: {
+                user : process.env.EMAIL,
+                pass: process.env.PASSWORD
+            }
+        })
+        this.mailOptions = {
+            from: process.env.EMAIL,
+            to: mailTo,
+            subject: subject
+        }
+        const handlebarOptions = {
+            viewEngine: {
+                extName: ".handlebars",
+                partialDir: "/controllers/classes/views/",
+                default: false
+            },
+            viewPath: "/controllers/classes/views/",
+            extName: ".handlebars"
+        }
+        this.transporter.use("compile", hbs(handlebarOptions))
+    }
+
+    SendEmail(data){
+        var mailOptions = {
+            ...this.mailOptions,
+            template: "main",
+            context: {
+                subject: this.mailOptions.subject,
+                title: "Risultati ricerca singola",
+                user: data.user,
+                options: data.options,
+                file: data.fileName
+            },
+            attachments: [{
+                            filename: data.fileName,
+                            path: data.filePath
+                        }]
+        }
+        this.transporter.sendMail(mailOptions, (error, info) => {
+            if(error) console.log(error)
+            else console.log("Email sent: " + info.response)
+        })
+    }
+}

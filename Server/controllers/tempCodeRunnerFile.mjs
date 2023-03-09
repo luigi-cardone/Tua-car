@@ -1,0 +1,1 @@
+Object.keys(search_params.schedule_content).pop()
