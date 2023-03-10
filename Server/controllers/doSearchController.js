@@ -32,6 +32,7 @@ const doSearchHandler = async (user_id, search_params, callback) =>{
         Object.entries(search_params).forEach(([platform, platform_params]) =>{
             const search = new Search({...platform_params, user_id : user_id})
             const search_query = search.fabricateSearchQuery()
+            console.log(search_query)
             db.query(search_query, (err, results)=>{
                 if(err) if (typeof callback == "function") callback(err);
                 var duplicates_query = "select duplicates_file from searches_duplicates where user_id= ? and platform= ? "
