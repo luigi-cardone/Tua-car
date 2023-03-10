@@ -13,7 +13,7 @@ const handleNewUser = async (req, res) =>{
     db.query(q, [email], async (err, data)=>{
         if(err) console.log(err)
         if(data.length !== 0){
-            return res.status(409).json({'message' : 'Username already exits'})
+            return res.status(409).json({'message' : 'Lo username è già registrato'})
         }
         try{
             const hashedPwd = await bcrypt.hash(pwd, 10)
