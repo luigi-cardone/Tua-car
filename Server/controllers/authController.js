@@ -7,13 +7,13 @@ import math from 'math'
 dotenv.config()
 const handleLogin = (req, res) =>{
     const {email, password} = req.body
-    if(!email || !password) return res.sendStatus(400).json({ 'message': 'Username and password required'})
+    if(!email || !password) return res.sendStatus(400).json({ 'message': 'Sono richiesti username e password'})
     //Check if the user exists (return res.sendStatus(401))
     var q = 'SELECT users.id, users.password, users.email, users.roles_mask, users_data.name FROM `users` INNER JOIN `users_data` ON users.id = users_data.user_id WHERE `email` = ?'
     db.query(q, [email], (err, data)=>{
         if(err) console.log(err)
         if(data.length === 0){
-            return res.sendStatus(401).json({'message' : 'User does not exit'})
+            return res.sendStatus(401).json({'message' : "L'utente non esiste"})
         }
         const foundUser = data[0]
         const hashedPassword = foundUser.password
