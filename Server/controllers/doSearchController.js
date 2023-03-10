@@ -11,6 +11,7 @@ const EXPORTS_PATH = "webfiles/exports/"
 
 const doSearch = async (req, res) =>{
     const search_params = req.body.schedule_content
+    console.log(search_params)
     const user_id = req.body.user_id
     const csvFile = await doSearchHandler(user_id, search_params, (csvFile =>{
         const mail = new Mailer(req.body.email, "Nuova ricerca effettuata")
