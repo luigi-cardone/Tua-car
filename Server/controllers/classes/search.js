@@ -29,10 +29,10 @@ export default class Search{
     fabricateSearchQuery() {
         var query_conditions = []
         if (this.geoTowns.length > 0) query_conditions.push(`geo_town in ('${this.geoTowns.join("','")}')`)
-        if (this.yearFrom !== "") query_conditions.push(`geo_town in ('${this.yearFrom}')`)
-        if (this.yearTo !== "") query_conditions.push(`geo_town in ('${this.yeatTo}')`)
-        if (this.mileageFrom !== "") query_conditions.push(`geo_town in ('${this.mileageFrom}')`)
-        if (this.mileageTo !== "") query_conditions.push(`geo_town in ('${this.mileageTo}')`)
+        if (this.yearFrom !== "" && this.yearFrom !== undefined) query_conditions.push(`"register_year >= '${this.yearFrom}'`)
+        if (this.yearTo !== "" && this.yearTo !== undefined) query_conditions.push(`register_year <= '${this.yeatTo}'`)
+        if (this.mileageFrom !== "" && this.mileageFrom !== undefined) query_conditions.push(`mileage_scalar > '${this.mileageFrom}'`)
+        if (this.mileageTo !== "" && this.mileageTo !== undefined) query_conditions.push(`mileage_scalar <= '${this.mileageTo}'`)
         query_conditions = `where ${query_conditions.join(" and ")}`
         var query = "select id, url, subject, fuel, pollution, price, mileage_scalar, register_date, advertiser_phone, advertiser_name, geo_town from " + db_platform[this.platform] + " " + query_conditions + " order by date_remote desc";
         return query
