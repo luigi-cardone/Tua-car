@@ -1,10 +1,5 @@
 import db from '../config/dataBaseOptions.js'
 import doSearchHandler from '../controllers/doSearchController.js';
-const db_platform = {
-    "platform-01": "cars_autoscout",
-    "platform-02": "cars_subito"
-  }
-
 let dtNow = new Date();
 let tsNow = Math.floor(dtNow.getTime() / 1000);
 
@@ -16,12 +11,14 @@ const q = `select * from scheduled_tasks where schedule_active = '1' and next_ru
 console.log(q)
 db.query(q, async (err, scheduledTasks) =>{
     if(err) console.log(err)
+    console.log("Got the following scheduled tasks:")
     console.log(scheduledTasks)
     const runTasks = []
     await scheduledTasks.map((task) =>{
         selectToDoTasks(task);
         return 0
     })
+    console.log("Got the following running tasks:")
     console.log(runTasks)
     runTasks.map( async (selectedTask) =>{
         await doSearchHandler(selectedTask.user_id, selectedTask.schedule_content)
@@ -29,10 +26,11 @@ db.query(q, async (err, scheduledTasks) =>{
         db.query(q, (err, res) =>{
             if(err) console.log(err)
             console.log("Aggiornamento effettuato con successo")
+            return 0
         })
     })
-})    
-
+    process.exit()
+})
 
 function selectToDoTasks(task) {
     const hh_mm = task['schedule_start'].split(":");
