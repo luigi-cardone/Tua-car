@@ -14,6 +14,6 @@ router.post("/updateUserCity", updateUserCityData)
 
 router.post("/updateUserSpoki", updateSpokiData)
 
-router.delete("/deleteUser:userData", deleteUser)
+router.delete("/deleteUser", deleteUser)
 
 export default router

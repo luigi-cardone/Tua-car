@@ -8,19 +8,18 @@ const db_platform = {
   }
 
 const EXPORTS_PATH = "webfiles/exports/"
-
 const doSearch = async (req, res) =>{
     const search_params = req.body.schedule_content
-    console.log(search_params)
     const user_id = req.body.user_id
+    const email = req.body.email
     const csvFile = await doSearchHandler(user_id, search_params, (csvFile =>{
-        const mail = new Mailer(req.body.email, "Nuova ricerca effettuata")
+        const mail = new Mailer(email, "Nuova ricerca effettuata")
         const search_options = Object.keys(search_params).map(platform => {
             var options = search_params[platform]
             options = {...options, platform: db_platform[platform]}
             return options
         })
-        mail.SendEmail({user: req.body.name, options: {search_options}, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
+        mail.SendEmail({user: req.body.name, options: search_options, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
         
         return res.json(csvFile)
     }))
@@ -33,7 +32,6 @@ const doSearchHandler = async (user_id, search_params, callback) =>{
         Object.entries(search_params).forEach(([platform, platform_params]) =>{
             const search = new Search({...platform_params, user_id : user_id})
             const search_query = search.fabricateSearchQuery()
-            console.log(search_query)
             db.query(search_query, (err, results)=>{
                 if(err) if (typeof callback == "function") callback(err);
                 var duplicates_query = "select duplicates_file from searches_duplicates where user_id= ? and platform= ? "
@@ -79,29 +77,34 @@ const doSearchHandler = async (user_id, search_params, callback) =>{
 async function writeCsv(data, searchOptions, db, user_id, callback) {
     searchOptions = JSON.stringify(searchOptions)
     const filePath = `${EXPORTS_PATH}${user_id}`;
-    const fileName = `${new Date().getFullYear()}_${(new Date().getMonth())}_${(new Date().getDay())}_${(new Date().getHours())}${(new Date().getMinutes())}_export.csv`;
+    const currentDate = new Date().toJSON().slice(0,10).replace(/-/g,'/').replaceAll("/", "_")
+    const fileName = `${currentDate}_export.csv`;
     if(!fs.existsSync(filePath)) {
-        fs.mkdirSync(path, 0o775)
+        fs.mkdirSync(filePath, 0o775)
     }
     const fp = fs.openSync(`${filePath}/${fileName}`, 'w');
     fs.chmodSync(`${filePath}/${fileName}`, 0o755);
   
     const headers = ["Veicolo (Marca Modello Versione)", "Trattativa", "Nominativo", "Indirizzo", "Località", "Tel", "Cel", "Mail", "WebLink", "Nota_1", "Nota_2", "Nota_3", "Nota_4", "Nota_5", "PrezzoMin", "PrezzoMax"];
-    fs.writeSync(fp, headers.join(";") + "\n");
-  
-    let cnt = 0;
-    data.forEach((platform_index) => {
-        platform_index.forEach((item) =>{
-            cnt++;
-            item.advertiser_name = item.advertiser_name || "Gentile Cliente";
-            const field = [item.subject, "A", item.advertiser_name, "", item.geo_town, "", item.advertiser_phone, "", item.url, item.mileage_scalar, item.fuel, item.pollution, "", "", "", item.price];
-            fs.writeSync(fp, field.join(";") + "\n");
-        })
+    fs.writeFile(fp, headers.join(";") + "\n", (err) =>{
+        if(err) console.log(err)
     });
-  
-    fs.closeSync(fp);
+    let cnt = 0;
+    for(var platform_index = 0; platform_index < data.length; platform_index++){
+        const platform_data = data[platform_index]
+        for(var item_index = 0; item_index < platform_data.length; item_index++){
+            cnt++;
+            platform_data[item_index].advertiser_name = platform_data[item_index].advertiser_name || "Gentile Cliente";
+            const field = [platform_data[item_index].subject, "A", platform_data[item_index].advertiser_name, "", platform_data[item_index].geo_town, "", platform_data[item_index].advertiser_phone, "", platform_data[item_index].url, platform_data[item_index].mileage_scalar, platform_data[item_index].fuel, platform_data[item_index].pollution, "", "", "", platform_data[item_index].price];
+            fs.writeFile(fp, field.join(";") + "\n", (err) =>{
+                if(err) console.log(err)
+            });
+        }
+    }
+    fs.close(fp);
+    console.log((new Date().toISOString().split('T').join(" ").replace("Z", "")).slice(0, 19))
     var q = "insert into searches (user_id, search_filename, search_path, search_options, search_results, search_date, SpokiSchedActive) values( ? , ?, ?, ?, ?, ?, ?)"
-    db.query(q, [user_id, fileName, `${filePath}/${fileName}`, searchOptions, cnt, new Date().toISOString().split('T')[0], 1], (err, data)=>{
+    db.query(q, [user_id, fileName, `${filePath}/${fileName}`, searchOptions, cnt, (new Date().toISOString().split('T').join(" ").replace("Z", "")).slice(0, 19), 1], (err, data)=>{
         if(err) return JSON.stringify(err)
         const response = {
           fileName: fileName,

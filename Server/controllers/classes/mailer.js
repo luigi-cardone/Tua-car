@@ -10,6 +10,8 @@ const __dirname = dirname(__filename);
 export default class Mailer {
     constructor(mailTo, subject){
         dotenv.config()
+        this.mailTo = mailTo
+        this.subject = subject
         this.transporter = nodemailer.createTransport({
             service : "gmail",
             tls: {
@@ -40,7 +42,7 @@ export default class Mailer {
             ...this.mailOptions,
             template: "main",
             context: {
-                subject: this.mailOptions.subject,
+                subject: this.subject,
                 title: "Risultati ricerca singola",
                 user: data.user,
                 options: data.options,
@@ -53,7 +55,7 @@ export default class Mailer {
         }
         this.transporter.sendMail(mailOptions, (error, info) => {
             if(error) console.log(error)
-            else console.log("Email sent: " + info.response)
+            else console.log("Email sent to : " + this.mailTo + " " + info.response)
         })
     }
 }
