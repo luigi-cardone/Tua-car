@@ -14,9 +14,10 @@ const setScheduleSearch = async (req, res) => {
 
 function setSchedule(db, inputData, userId, res) {
     var debugText = "<br />Debug::<br />";
-
-    var dtNow = new Date();
-    var dtSched = new Date();
+    console.log(inputData)
+    let timeOffset = new Date().getTimezoneOffset()
+    var dtNow = new Date(new Date().getTime() - (timeOffset * 60 * 1000));
+    var dtSched = new Date(new Date().getTime() - (timeOffset * 60 * 1000));
     var hh_mm = inputData.schedule_start.split(":");
     dtSched.setHours(parseInt(hh_mm[0]), parseInt(hh_mm[1]), 0);
 
@@ -34,9 +35,9 @@ function setSchedule(db, inputData, userId, res) {
     var dtNowString = dtNow.toISOString().slice(0, 19).replace("T", " ");
     var dtSchedString = dtSched.toISOString().slice(0, 19).replace("T", " ");
 
-    var nexRunDate = new Date();
-    nexRunDate.setTime(nextSchedTs);
-    var nextRunAt = nexRunDate.toISOString().slice(0, 16).replace("T", " ");
+    var nextRunDate = new Date(new Date().getTime() - (timeOffset * 60 * 1000));
+    nextRunDate.setTime(nextSchedTs);
+    var nextRunAt = nextRunDate.toISOString().slice(0, 16).replace("T", " ");
 
     debugText += "<br />Timediff:: " + dtSchedString + " - " + dtNowString + " = " + diffMinutes + " minuti --> nextRunAT: " + nextRunAt + "  <br />";
 
@@ -68,14 +69,14 @@ function setSchedule(db, inputData, userId, res) {
         next_run : nextRunAt
     }
 
-    let returnText = "La tua ricerca è stata programmata.<br />La cadenza impostata è ogni <strong>" + inputData.scheduleRepeatHours + " ore</strong> a partire dalle <strong>" + inputData.scheduleStart + "</strong>, quindi la prossima esecuzione sarà <strong>" + (moment(nexRunDate).format("Y-m-d") === moment(dtNow).format('Y-m-d') ? "oggi" : "domani") + "</strong> alle ore <strong>" + moment(nexRunDate).format("H:i") + "</strong><br />";
+    let returnText = "La tua ricerca è stata programmata.\nLa cadenza impostata è ogni " + inputData.schedule_repeat_h + " ore a partire dalle " + inputData.schedule_start + ", quindi la prossima esecuzione sarà " + (moment(nextRunAt).format("Y-m-d") === moment(dtNow).format('Y-m-d') ? "oggi" : "domani") + " alle ore " + moment(nextRunDate).format("hh:mm")
 
     // esegue una query per verificare se c'è già una schedulazione attiva per l'utente
     let hasTask = false;
     var cnt = 0
-    db.query("select count(task_id) as cnt from scheduled_tasks where user_id = ?  and schedule_active = '1'", [userId] , (err, hasTaskResult)=>{
+    db.query("select * from scheduled_tasks where user_id = ? and schedule_active = '1'", [userId] , (err, hasTaskResult)=>{
         if (err) console.log(err)
-        if (hasTaskResult.cnt) {
+        if (hasTaskResult.length > 0) {
             hasTask = true;
             }
         

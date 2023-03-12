@@ -12,7 +12,7 @@ const doSearch = async (req, res) =>{
     const search_params = req.body.schedule_content
     const user_id = req.body.user_id
     const email = req.body.email
-    const csvFile = await doSearchHandler(user_id, search_params, (csvFile =>{
+    await doSearchHandler(user_id, search_params, (csvFile =>{
         const mail = new Mailer(email, "Nuova ricerca effettuata")
         const search_options = Object.keys(search_params).map(platform => {
             var options = search_params[platform]
@@ -20,8 +20,8 @@ const doSearch = async (req, res) =>{
             return options
         })
         mail.SendEmail({user: req.body.name, options: search_options, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
-        
-        return res.json(csvFile)
+        const msg = `E' stato creato il file${csvFile.Filename} ${csvFile.searchCnt > 0 ? ` con un totale di ${csvFile.searchCnt}` : ". Non è stato trovato nessun nuovo risultato, prova a cambiare i parametri di ricerca"}`
+        return res.json({error: false, message: msg})
     }))
 }
 
