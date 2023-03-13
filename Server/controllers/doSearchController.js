@@ -14,11 +14,8 @@ const doSearch = async (req, res) =>{
     const email_list = req.body.email_list
     const user_id = req.body.user_id
     const email = req.body.email
-    console.log(req.body)
     await doSearchHandler(user_id, search_params, spoki_active, ((csvFile) =>{
         if(csvFile === undefined) return res.json({error: true, message: "Nessun parametro di ricerca impostato"})
-        console.log(csvFile === undefined)
-        console.log(csvFile)
         if(email){
             const mail = new Mailer(email, "Nuova ricerca effettuata")
             const search_options = Object.keys(search_params).map(platform => {
@@ -40,7 +37,7 @@ const doSearch = async (req, res) =>{
                 mail.SendEmail({user: req.body.name, options: search_options, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
             }
         }
-        const msg = `E' stato creato il file${csvFile.Filename} ${csvFile.searchCnt > 0 ? ` con un totale di ${csvFile.searchCnt}` : ". Non è stato trovato nessun nuovo risultato, prova a cambiare i parametri di ricerca"}`
+        const msg = `E' stato creato il file${csvFile.fileName} ${csvFile.searchCnt > 0 ? ` con un totale di ${csvFile.searchCnt}` : ". Non è stato trovato nessun nuovo risultato, prova a cambiare i parametri di ricerca"}`
         return res.json({error: false, message: msg})
     }))
 }
@@ -117,9 +114,7 @@ async function writeCsv(data, searchOptions, db, user_id, spoki_active, callback
     fs.chmodSync(`${filePath}/${fileName}`, 0o755);
   
     const headers = ["Veicolo (Marca Modello Versione)", "Trattativa", "Nominativo", "Indirizzo", "Località", "Tel", "Cel", "Mail", "WebLink", "Nota_1", "Nota_2", "Nota_3", "Nota_4", "Nota_5", "PrezzoMin", "PrezzoMax"];
-    fs.writeFile(fp, headers.join(";") + "\n", (err) =>{
-        if(err) console.log(err)
-    });
+    fs.writeSync(fp, headers.join(";") + "\n");
     let cnt = 0;
     data.forEach((platform_index) => {
         platform_index.forEach((item) =>{
