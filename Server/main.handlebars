@@ -327,7 +327,7 @@
                                     {{#each options}}
                                       {{#each this}}
                                       <div>
-                                          <strong>{{@key}}</strong>: {{this}}
+                                          <strong>{{@key}}</strong>: {{#if this}}{{this}}{{else}}Qualsiasi{{/if}}
                                       </div>
                                       {{/each}}
                                     {{/each}}

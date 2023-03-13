@@ -41,6 +41,7 @@ const handleRefreshToken = (req, res) =>{
                         process.env.ACCESS_TOKEN_SECRET,
                         {expiresIn: '30s'}
                     )
+                    console.log({name: user.name, roles: [user.roles_mask], user_id: user.user_id, accessToken: accessToken})
                     res.json({name: user.name, roles: [user.roles_mask], user_id: user.user_id, accessToken: accessToken})
                 }
              )

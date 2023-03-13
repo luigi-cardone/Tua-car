@@ -1,8 +1,7 @@
 <?php
 	$db = new \PDO("mysql:host=localhost;dbname=tuacardb", "tuacarusr", "Ck#v00b3");
     AddBulkContacts($db);
-
-
+    
 	function AddBulkContacts($db){
         // This functions is scheaduled to run every day at 2 a.m.
         // It add all contacts from the csv files collected during the day
