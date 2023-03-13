@@ -105,7 +105,7 @@ async function writeCsv(data, searchOptions, db, user_id, spoki_active, callback
     let timeOffset = new Date().getTimezoneOffset()
     let dtNow = new Date(new Date().getTime() - (timeOffset * 60 * 1000));
     const filePath = `${EXPORTS_PATH}${user_id}`;
-    const currentDate = new Date(dtNow).toJSON().slice(0,10).replace(/-/g,'/').replaceAll("/", "_")
+    const currentDate = new Date(dtNow).toJSON().slice(0,19).replace(/-/g,'/').replaceAll("/", "_").replace("Z", "_").replace("T", "_").replaceAll(":", "")
     const fileName = `${currentDate}_export.csv`;
     if(!fs.existsSync(filePath)) {
         fs.mkdirSync(filePath, 0o775)
