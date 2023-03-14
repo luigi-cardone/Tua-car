@@ -4,6 +4,7 @@ const db_platform = {
     "platform-01": "cars_autoscout",
     "platform-02": "cars_subito"
   }
+const url = 'http://localhost/' //http://localhost/ http://tua-car-test.online/
 let timeOffset = new Date().getTimezoneOffset()
 let dtNow = new Date(new Date().getTime() - (timeOffset * 60 * 1000));
 let tsNow = Math.floor(dtNow.getTime() / 1000);
@@ -53,18 +54,21 @@ async function tryExecuteTask(task) {
     let rs = (new Date(new Date(rd).getTime() - (timeOffset * 60 * 1000))).getTime() / 1000;
     let nextRunAt = "";
     //(rs < ts_hhmmAfter) && (rs > ts_hhmmBefore)
-    if ((rs < ts_hhmmAfter) && (rs > ts_hhmmBefore)) {
+    if (1) {
         // run current scheduled task
         const mail_list = JSON.parse(task.schedule_cc)
-        console.log(mail_list)
         console.log("RUN NOW!!!");
-        const res = await axios.post('http://tua-car-test.online/search', {mail_list: mail_list, setSpokiActive: 1, schedule_content: JSON.parse(task.schedule_content), user_id: task.user_id})
+        var res = await axios.get(url+"user/user/"+task.user_id)
+        const user = res.data[0]
+        console.log(user)
+        mail_list.push(user.email)
+        console.log(mail_list)
+        await axios.post(url+'search', {name: user.name, mail_list: mail_list, setSpokiActive: 1, schedule_content: JSON.parse(task.schedule_content), user_id: task.user_id})
         let nextRunTs = (rs + task['schedule_repeat_h'] * 3600);
         nextRunAt = new Date(nextRunTs * 1000).toISOString().slice(0, 19).replace('T', ' ');
         console.log(`RunHour : ${runHour}`);
         console.log(`NextRun : ${nextRunAt}`);
-        return {...task, last_run: dtNow.toISOString().slice(0, 19).replace('T', ' '), next_run: nextRunAt}
+        return {...task, last_run: new Date(), next_run: nextRunAt}
     }
-    console.log(finished)
     return 0;
 }
