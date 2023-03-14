@@ -19,10 +19,10 @@ db.query(q, async (err, scheduledTasks) =>{
     console.log("Got the following scheduled tasks:")
     console.log(scheduledTasks.length)
     const executedTasks = []
-    await scheduledTasks.map(async (task) =>{
-        executedTasks.push(await tryExecuteTask(task))
-        return 0
-    })
+    for(var taskIndex = 0; taskIndex < scheduledTasks.length; taskIndex++){
+            const task = await tryExecuteTask(scheduledTasks[taskIndex])
+            executedTasks.push(task)
+    }
     console.log("Got the following running tasks:")
     console.log(executedTasks)
     executedTasks.map( async (task) =>{
@@ -53,21 +53,17 @@ async function tryExecuteTask(task) {
     let rs = (new Date(new Date(rd).getTime() - (timeOffset * 60 * 1000))).getTime() / 1000;
     let nextRunAt = "";
     //(rs < ts_hhmmAfter) && (rs > ts_hhmmBefore)
-    if (1) {
+    if ((rs < ts_hhmmAfter) && (rs > ts_hhmmBefore)) {
         // run current scheduled task
-        console.log("<hr />RUN NOW!!!");
         const mail_list = JSON.parse(task.schedule_cc)
-        await axios.post('http://tua-car-test.online/search', {mail_list: mail_list, search_params: JSON.parse(task.schedule_content), user_id: task.user_id})
-        .then(() =>{
-            let nextRunTs = (rs + task['schedule_repeat_h'] * 3600);
-            nextRunAt = new Date(nextRunTs * 1000).toISOString().slice(0, 19).replace('T', ' ');
-            console.log(`RunHour : ${runHour}`);
-            console.log(`NextRun : ${nextRunAt}`);
-            console.log({...task, last_run: dtNow.toISOString().slice(0, 19).replace('T', ' '), next_run: nextRunAt})
-            return {...task, last_run: dtNow.toISOString().slice(0, 19).replace('T', ' '), next_run: nextRunAt}
-        })
-        .catch((err) => console.log(err))
-
+        console.log(mail_list)
+        console.log("RUN NOW!!!");
+        const res = await axios.post('http://tua-car-test.online/search', {mail_list: mail_list, setSpokiActive: 1, schedule_content: JSON.parse(task.schedule_content), user_id: task.user_id})
+        let nextRunTs = (rs + task['schedule_repeat_h'] * 3600);
+        nextRunAt = new Date(nextRunTs * 1000).toISOString().slice(0, 19).replace('T', ' ');
+        console.log(`RunHour : ${runHour}`);
+        console.log(`NextRun : ${nextRunAt}`);
+        return {...task, last_run: dtNow.toISOString().slice(0, 19).replace('T', ' '), next_run: nextRunAt}
     }
     console.log(finished)
     return 0;

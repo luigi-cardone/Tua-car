@@ -11,7 +11,7 @@ const EXPORTS_PATH = "webfiles/exports/"
 const doSearch = async (req, res) =>{
     const search_params = req.body.schedule_content
     const spoki_active = req.body.setSpokiActive
-    const email_list = req.body.email_list
+    const email_list = req.body.mail_list
     const user_id = req.body.user_id
     const email = req.body.email
     await doSearchHandler(user_id, search_params, spoki_active, ((csvFile) =>{
@@ -26,9 +26,8 @@ const doSearch = async (req, res) =>{
             mail.SendEmail({user: req.body.name, options: search_options, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
         }
         else if(email_list){
-            console.log(email_list)
-            for(var mail_index = 0; mail_index < mail_list.length; mail_index++){
-                const mail = new Mailer(mail_list[mail_index], "Nuova ricerca effettuata")
+            for(var mail_index = 0; mail_index < email_list.length; mail_index++){
+                const mail = new Mailer(email_list[mail_index], "Nuova ricerca effettuata")
                 const search_options = Object.keys(search_params).map(platform => {
                     var options = search_params[platform]
                     options = {...options, platform: db_platform[platform]}
@@ -107,6 +106,7 @@ async function writeCsv(data, searchOptions, db, user_id, spoki_active, callback
     const filePath = `${EXPORTS_PATH}${user_id}`;
     const currentDate = new Date(dtNow).toJSON().slice(0,19).replace(/-/g,'/').replaceAll("/", "_").replace("Z", "_").replace("T", "_").replaceAll(":", "")
     const fileName = `${currentDate}_export.csv`;
+    console.log("Writing the csv file")
     if(!fs.existsSync(filePath)) {
         fs.mkdirSync(filePath, 0o775)
     }
@@ -126,18 +126,18 @@ async function writeCsv(data, searchOptions, db, user_id, spoki_active, callback
     });
     fs.closeSync(fp);
     var q = "insert into searches (user_id, search_filename, search_path, search_options, search_results, search_date, SpokiSchedActive) values( ? , ?, ?, ?, ?, ?, ?)"
-    db.query(q, [user_id, fileName, `${filePath}/${fileName}`, searchOptions, cnt, (new Date(dtNow).toISOString().split('T').join(" ").replace("Z", "")).slice(0, 19), spoki_active], (err, data)=>{
-        if(err) return JSON.stringify(err)
+    try{
+        await db.query(q, [user_id, fileName, `${filePath}/${fileName}`, searchOptions, cnt, (new Date(dtNow).toISOString().split('T').join(" ").replace("Z", "")).slice(0, 19), spoki_active])
         const response = {
-          fileName: fileName,
-          fileNamePath: `${filePath}/${fileName}`,
-          searchCnt: cnt
+            fileName: fileName,
+            fileNamePath: `${filePath}/${fileName}`,
+            searchCnt: cnt
         }
         if (typeof callback == "function") callback(response);
-
-        
-    })
-    
+    }
+    catch(err){
+        console.log(err)
+    }
   
   }
 
