@@ -16,7 +16,10 @@ let ts_hhmmAfter = tsNow + 3 * 60;
 const q = `select * from scheduled_tasks where schedule_active = '1' and next_run <= '${new Date(ts_hhmmAfter * 1000).toISOString().slice(0, 19).replace('T', ' ')}'`
 console.log(q)
 db.query(q, async (err, scheduledTasks) =>{
-    if(err) console.log(err)
+    if(err) {
+        console.log(err)
+        return 0
+    }
     console.log("Got the following scheduled tasks:")
     console.log(scheduledTasks.length)
     const executedTasks = []
