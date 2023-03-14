@@ -9,13 +9,13 @@ const db_platform = {
     "platform-01": "cars_autoscout",
     "platform-02": "cars_subito"
   }
-const url = 'http://tua-car-test.online/'
+const url = 'http://tua-car-test.online/' //http://localhost/ http://tua-car-test.online/
 let timeOffset = new Date().getTimezoneOffset()
 let dtNow = new Date(new Date().getTime() - (timeOffset * 60 * 1000));
 let tsNow = Math.floor(dtNow.getTime() / 1000);
 
 // interval for selecting tasks
-let ts_hhmmBefore = tsNow - 3 * 60;
+let ts_hhmmBefore = tsNow - 2 * 60;
 let ts_hhmmAfter = tsNow + 3 * 60;
 
 const q = `select * from scheduled_tasks where schedule_active = '1' and next_run <= '${new Date(ts_hhmmAfter * 1000).toISOString().slice(0, 19).replace('T', ' ')}'`
@@ -65,8 +65,8 @@ async function tryExecuteTask(task) {
         console.log("RUN NOW!!!");
         var res = await axios.get(url+"user/user/"+task.user_id)
         const user = res.data[0]
-        console.log(user)
         mail_list.push(user.email)
+        console.log("The email will be sent to the following addresses:")
         console.log(mail_list)
         await axios.post(url+'search', {name: user.name, mail_list: mail_list, setSpokiActive: 1, schedule_content: JSON.parse(task.schedule_content), user_id: task.user_id})
         let nextRunTs = (rs + task['schedule_repeat_h'] * 3600);

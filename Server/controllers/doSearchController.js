@@ -36,7 +36,7 @@ const doSearch = async (req, res) =>{
                 mail.SendEmail({user: req.body.name, options: search_options, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
             }
         }
-        const msg = `E' stato creato il file${csvFile.fileName} ${csvFile.searchCnt > 0 ? ` con un totale di ${csvFile.searchCnt}` : ". Non è stato trovato nessun nuovo risultato, prova a cambiare i parametri di ricerca"}`
+        const msg = `E' stato creato il file ${csvFile.fileName} ${csvFile.searchCnt > 0 ? ` con un totale di ${csvFile.searchCnt}` : ". Non è stato trovato nessun nuovo risultato, prova a cambiare i parametri di ricerca"}`
         return res.json({error: false, message: msg})
     }))
 }
