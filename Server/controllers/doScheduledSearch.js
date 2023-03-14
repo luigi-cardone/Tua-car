@@ -69,16 +69,21 @@ function setSchedule(db, inputData, userId, res) {
         next_run : nextRunAt
     }
 
-    let returnText = "La tua ricerca è stata programmata.\nLa cadenza impostata è ogni " + inputData.schedule_repeat_h + " ore a partire dalle " + inputData.schedule_start + ", quindi la prossima esecuzione sarà " + (moment(nextRunAt).format("Y-m-d") === moment(dtNow).format('Y-m-d') ? "oggi" : "domani") + " alle ore " + moment(nextRunDate).format("hh:mm")
-
+    
     // esegue una query per verificare se c'è già una schedulazione attiva per l'utente
     let hasTask = false;
     var cnt = 0
     db.query("select * from scheduled_tasks where user_id = ? and schedule_active = '1'", [userId] , (err, hasTaskResult)=>{
-        if (err) console.log(err)
+        if (err) {
+            console.log(err)
+            return 0
+        }
         if (hasTaskResult.length > 0) {
             hasTask = true;
-            }
+        }
+        else{
+            let returnText = "La tua ricerca è stata programmata.\nLa cadenza impostata è ogni " + hasTaskResult[0].schedule_repeat_h + " ore a partire dalle " + hasTaskResult[0].schedule_start + ", quindi la prossima esecuzione sarà " + (moment(hasTaskResult[0].next_run).format("Y-m-d") === moment(dtNow).format('Y-m-d') ? "oggi" : "domani") + " alle ore " + moment(hasTaskResult[0].next_run).format("hh:mm")
+        }
         
             // debug:
             if (hasTask) {

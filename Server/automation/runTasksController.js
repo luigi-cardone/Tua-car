@@ -1,25 +1,27 @@
-import db from '../config/dataBaseOptions.js'
+import mysql from "mysql"
 import axios from 'axios';
+const db = mysql.createConnection({
+    user: "luigi_tuacar",
+    password: "Tuacar.2023",
+    database: "tuacarDb"
+})
 const db_platform = {
     "platform-01": "cars_autoscout",
     "platform-02": "cars_subito"
   }
-const url = 'http://localhost/' //http://localhost/ http://tua-car-test.online/
+const url = 'http://tua-car-test.online/'
 let timeOffset = new Date().getTimezoneOffset()
 let dtNow = new Date(new Date().getTime() - (timeOffset * 60 * 1000));
 let tsNow = Math.floor(dtNow.getTime() / 1000);
 
 // interval for selecting tasks
-let ts_hhmmBefore = tsNow - 2 * 60;
+let ts_hhmmBefore = tsNow - 3 * 60;
 let ts_hhmmAfter = tsNow + 3 * 60;
 
 const q = `select * from scheduled_tasks where schedule_active = '1' and next_run <= '${new Date(ts_hhmmAfter * 1000).toISOString().slice(0, 19).replace('T', ' ')}'`
 console.log(q)
 db.query(q, async (err, scheduledTasks) =>{
-    if(err) {
-        console.log(err)
-        return 0
-    }
+    if(err) console.log(err)
     console.log("Got the following scheduled tasks:")
     console.log(scheduledTasks.length)
     const executedTasks = []
@@ -57,7 +59,7 @@ async function tryExecuteTask(task) {
     let rs = (new Date(new Date(rd).getTime() - (timeOffset * 60 * 1000))).getTime() / 1000;
     let nextRunAt = "";
     //(rs < ts_hhmmAfter) && (rs > ts_hhmmBefore)
-    if (1) {
+    if ((rs < ts_hhmmAfter) && (rs > ts_hhmmBefore)) {
         // run current scheduled task
         const mail_list = JSON.parse(task.schedule_cc)
         console.log("RUN NOW!!!");
