@@ -14,7 +14,6 @@ const setScheduleSearch = async (req, res) => {
 
 function setSchedule(db, inputData, userId, res) {
     var debugText = "<br />Debug::<br />";
-    console.log(inputData)
     let timeOffset = new Date().getTimezoneOffset()
     var dtNow = new Date(new Date().getTime() - (timeOffset * 60 * 1000));
     var dtSched = new Date(new Date().getTime() - (timeOffset * 60 * 1000));
@@ -81,25 +80,25 @@ function setSchedule(db, inputData, userId, res) {
         if (hasTaskResult.length > 0) {
             hasTask = true;
         }
-        let returnText = "La tua ricerca è stata programmata.\nLa cadenza impostata è ogni " + qVars.schedule_repeat_h + " ore a partire dalle " + qVars.schedule_start + ", quindi la prossima esecuzione sarà " + (moment(qVars.next_run).format("Y-m-d") === moment(dtNow).format('Y-m-d') ? "oggi" : "domani") + " alle ore " + moment(qVars.next_run).format("hh:mm")
+        var returnText = "La tua ricerca è stata programmata.\nLa cadenza impostata è ogni " + qVars.schedule_repeat_h + " ore a partire dalle " + qVars.schedule_start + ", quindi la prossima esecuzione sarà " + (moment(qVars.next_run).format("Y-m-d") === moment(dtNow).format('Y-m-d') ? "oggi" : "domani") + " alle ore " + moment(qVars.next_run).format("hh:mm")
         
-            // debug:
-            if (hasTask) {
+        if (hasTask) {
+            return res.json({
+                error: true,
+                message: "Hai già una ricerca programmata. Per programmare una nuova ricerca è necessario disattivare la programmazione attuale."
+            })
+        } else {
+            let q = "insert into scheduled_tasks (" + Object.keys(qVars).join(", ") + ") values (" + Array(qVars.length).fill("?").join(", ") + ")";
+            db.query(q, [Object.values(qVars)] ,(err, data) =>{
+                if(err) console.log(err)
+                debugText += q;
+                console.log(debugText)
                 return res.json({
-                    error: true,
-                    message: "Hai già una ricerca programmata. Per programmare una nuova ricerca è necessario disattivare la programmazione attuale."
+                    error: false,
+                    message: returnText
                 })
-            } else {
-                let q = "insert into scheduled_tasks (" + Object.keys(qVars).join(", ") + ") values (" + Array(qVars.length).fill("?").join(", ") + ")";
-                db.query(q, [Object.values(qVars)] ,(err, data) =>{
-                    if(err) console.log(err)
-                    debugText += q;
-                    return res.json({
-                        error: false,
-                        message: returnText
-                    })
-                });
-            }
+            });
+        }
     });
     
 }
