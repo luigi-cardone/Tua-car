@@ -14,7 +14,7 @@ const setScheduleSearch = async (req, res) => {
 
 function setSchedule(db, inputData, userId, res) {
     var debugText = "<br />Debug::<br />";
-    var dtNow = new Date().getTime()
+    var dtNow = new Date()
     var dtSched = new Date()
     var hh_mm = inputData.schedule_start.split(":");
     dtSched.setHours(parseInt(hh_mm[0]), parseInt(hh_mm[1]), 0);
