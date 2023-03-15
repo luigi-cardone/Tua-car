@@ -33,7 +33,7 @@ function setSchedule(db, inputData, userId, res) {
     var dtNowString = dtNow.toISOString().slice(0, 19).replace("T", " ");
     var dtSchedString = dtSched.toISOString().slice(0, 19).replace("T", " ");
 
-    var nextRunDate = new Date(new Date().getTime() - (timeOffset * 60 * 1000));
+    var nextRunDate = new Date();
     nextRunDate.setTime(nextSchedTs);
     var nextRunAt = nextRunDate;
 
