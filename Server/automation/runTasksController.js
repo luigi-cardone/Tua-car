@@ -47,12 +47,12 @@ db.query(q, async (err, scheduledTasks) =>{
 
 async function tryExecuteTask(task) {
     const hh_mm = task.schedule_start.split(":");
-    const runHour = parseInt(hh_mm[0]);
+    const runHour = parseInt(hh_mm[0]) -(timeOffset / 60)=== 24 ? 0 : runHour-(timeOffset / 60);
     const runMinute = parseInt(hh_mm[1]);
     const currentDate = new Date();
     const runDate = currentDate;
     var nextRun = currentDate
-    runDate.setHours(runHour-(timeOffset / 60)=== 24 ? 0 : runHour- (timeOffset / 60), runMinute, 0, 0);
+    runDate.setHours(runHour, runMinute, 0, 0);
     let rd = "";
     while (runDate < dtNow) {
         rd = runDate.toISOString().slice(0, 19).replace('T', ' ');
@@ -71,7 +71,7 @@ async function tryExecuteTask(task) {
         console.log("The email will be sent to the following addresses:")
         console.log(mail_list)
         await axios.post(url+'search', {name: user.name, mail_list: mail_list, setSpokiActive: 1, schedule_content: JSON.parse(task.schedule_content), user_id: task.user_id})
-        let nextRunTs = new Date(nextRun + (task.schedule_repeat_h) * 3600 );
+        let nextRunTs = new Date(nextRun + (task.schedule_repeat_h - (timeOffset / 60)=== 24 ? 0 : runHour-(timeOffset / 60)) * 3600 );
         console.log(`RunHour : ${runHour}`);
         console.log(`NextRun : ${nextRunTs.toISOString().slice(0, 19).replace('T', ' ')}`);
         return {...task, last_run: new Date(), next_run: nextRunTs}
