@@ -1,5 +1,5 @@
 <?php
-	$db = new \PDO("mysql:host=localhost;dbname=tuacardb", "tuacarusr", "Ck#v00b3");
+	$db = new \PDO("mysql:host=localhost;dbname=tuacarDb", "luigi_tuacar", "Ck#Tuacar.2023");
     AddBulkContacts($db);
     
 	function AddBulkContacts($db){

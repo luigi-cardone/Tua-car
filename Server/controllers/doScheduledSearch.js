@@ -82,7 +82,7 @@ function setSchedule(db, inputData, userId, res) {
             hasTask = true;
         }
         else{
-            let returnText = "La tua ricerca è stata programmata.\nLa cadenza impostata è ogni " + hasTaskResult[0].schedule_repeat_h + " ore a partire dalle " + hasTaskResult[0].schedule_start + ", quindi la prossima esecuzione sarà " + (moment(hasTaskResult[0].next_run).format("Y-m-d") === moment(dtNow).format('Y-m-d') ? "oggi" : "domani") + " alle ore " + moment(hasTaskResult[0].next_run).format("hh:mm")
+            let returnText = "La tua ricerca è stata programmata.\nLa cadenza impostata è ogni " + qVars.schedule_repeat_h + " ore a partire dalle " + qVars.schedule_start + ", quindi la prossima esecuzione sarà " + (moment(qVars.next_run).format("Y-m-d") === moment(dtNow).format('Y-m-d') ? "oggi" : "domani") + " alle ore " + moment(qVars.next_run).format("hh:mm")
         }
         
             // debug:

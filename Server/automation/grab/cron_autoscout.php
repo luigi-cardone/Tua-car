@@ -1,6 +1,6 @@
 <?php
 require_once('/var/www/vhosts/leads.tua-car.it/httpdocs/classes/adodb5/adodb.inc.php');
-
+$db = new \PDO("mysql:host=localhost;dbname=tuacarDb", "luigi_tuacar", "Ck#Tuacar.2023");
 $db_hostname = 'localhost';
 $db_username = 'tuacarusr';
 $db_password = 'Ck#v00b3';

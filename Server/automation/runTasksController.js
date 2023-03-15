@@ -1,6 +1,7 @@
 import mysql from "mysql"
 import axios from 'axios';
 const db = mysql.createConnection({
+    host: "141.95.54.84",
     user: "luigi_tuacar",
     password: "Tuacar.2023",
     database: "tuacarDb"
@@ -30,16 +31,17 @@ db.query(q, async (err, scheduledTasks) =>{
             executedTasks.push(task)
     }
     console.log("Got the following running tasks:")
-    console.log(executedTasks)
     executedTasks.map( async (task) =>{
         if(task === 0) return 0
-        const q = `UPDATE scheduled_tasks SET last_run = '${new Date().toISOString()}', next_run = '${task.next_run}' WHERE task_id = '${task.task_id}'`;
+        const q = `UPDATE scheduled_tasks SET last_run = '${task.last_run}', next_run = '${task.next_run}' WHERE task_id = '${task.task_id}'`;
+        console.log(q)
         db.query(q, (err, res) =>{
             if(err) console.log(err)
             console.log("Aggiornamento effettuato con successo")
-            return 0
+            return task.task_id
         })
     })
+    console.log(executedTasks)
     process.exit()
 })
 
@@ -47,8 +49,9 @@ async function tryExecuteTask(task) {
     const hh_mm = task.schedule_start.split(":");
     const runHour = parseInt(hh_mm[0]);
     const runMinute = parseInt(hh_mm[1]);
-    let timeOffset = new Date().getTimezoneOffset()
-    const runDate = new Date(new Date().getTime() - (timeOffset * 60 * 1000));
+    const currentDate = new Date();
+    const runDate = currentDate;
+    var nextRun = currentDate
     runDate.setHours(runHour-(timeOffset / 60)=== 24 ? 0 : runHour- (timeOffset / 60), runMinute, 0, 0);
     let rd = "";
     while (runDate < dtNow) {
@@ -57,7 +60,6 @@ async function tryExecuteTask(task) {
         runDate.setHours(runDate.getHours() + task.schedule_repeat_h);
     }
     let rs = (new Date(new Date(rd).getTime() - (timeOffset * 60 * 1000))).getTime() / 1000;
-    let nextRunAt = "";
     //(rs < ts_hhmmAfter) && (rs > ts_hhmmBefore)
     if ((rs < ts_hhmmAfter) && (rs > ts_hhmmBefore)) {
         // run current scheduled task
@@ -69,11 +71,10 @@ async function tryExecuteTask(task) {
         console.log("The email will be sent to the following addresses:")
         console.log(mail_list)
         await axios.post(url+'search', {name: user.name, mail_list: mail_list, setSpokiActive: 1, schedule_content: JSON.parse(task.schedule_content), user_id: task.user_id})
-        let nextRunTs = (rs + task['schedule_repeat_h'] * 3600);
-        nextRunAt = new Date(nextRunTs * 1000).toISOString().slice(0, 19).replace('T', ' ');
+        let nextRunTs = new Date(nextRun + (task.schedule_repeat_h) * 3600 );
         console.log(`RunHour : ${runHour}`);
-        console.log(`NextRun : ${nextRunAt}`);
-        return {...task, last_run: new Date(), next_run: nextRunAt}
+        console.log(`NextRun : ${nextRunTs.toISOString().slice(0, 19).replace('T', ' ')}`);
+        return {...task, last_run: new Date(), next_run: nextRunTs}
     }
     return 0;
 }
