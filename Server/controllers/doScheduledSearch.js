@@ -14,9 +14,8 @@ const setScheduleSearch = async (req, res) => {
 
 function setSchedule(db, inputData, userId, res) {
     var debugText = "<br />Debug::<br />";
-    let timeOffset = new Date().getTimezoneOffset()
-    var dtNow = new Date(new Date().getTime() - (timeOffset * 60 * 1000));
-    var dtSched = new Date(new Date().getTime() - (timeOffset * 60 * 1000));
+    var dtNow = new Date().getTime()
+    var dtSched = new Date()
     var hh_mm = inputData.schedule_start.split(":");
     dtSched.setHours(parseInt(hh_mm[0]), parseInt(hh_mm[1]), 0);
 
@@ -36,7 +35,7 @@ function setSchedule(db, inputData, userId, res) {
 
     var nextRunDate = new Date(new Date().getTime() - (timeOffset * 60 * 1000));
     nextRunDate.setTime(nextSchedTs);
-    var nextRunAt = nextRunDate.toISOString().slice(0, 16).replace("T", " ");
+    var nextRunAt = nextRunDate;
 
     debugText += "<br />Timediff:: " + dtSchedString + " - " + dtNowString + " = " + diffMinutes + " minuti --> nextRunAT: " + nextRunAt + "  <br />";
 
@@ -67,6 +66,7 @@ function setSchedule(db, inputData, userId, res) {
         created_at: new Date(),
         next_run : nextRunAt
     }
+    console.log(qVars)
 
     
     // esegue una query per verificare se c'è già una schedulazione attiva per l'utente
