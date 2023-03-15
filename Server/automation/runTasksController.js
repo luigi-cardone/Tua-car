@@ -6,11 +6,7 @@ const db = mysql.createConnection({
     password: "Tuacar.2023",
     database: "tuacarDb"
 })
-const db_platform = {
-    "platform-01": "cars_autoscout",
-    "platform-02": "cars_subito"
-  }
-const url = 'http://tua-car-test.online/' //http://localhost/ http://tua-car-test.online/
+const url = 'http://tua-car-test.online/'
 let timeOffset = new Date().getTimezoneOffset()
 let dtNow = new Date(new Date().getTime() - (timeOffset * 60 * 1000));
 let tsNow = Math.floor(dtNow.getTime() / 1000);
@@ -73,7 +69,7 @@ async function tryExecuteTask(task) {
         await axios.post(url+'search', {name: user.name, mail_list: mail_list, setSpokiActive: 1, schedule_content: JSON.parse(task.schedule_content), user_id: task.user_id})
         let nextRunTs = new Date(nextRun + (task.schedule_repeat_h - (timeOffset / 60)=== 24 ? 0 : runHour-(timeOffset / 60)) * 3600 );
         console.log(`RunHour : ${runHour}`);
-        console.log(`NextRun : ${nextRunTs.toISOString().slice(0, 19).replace('T', ' ')}`);
+        console.log(`NextRun : ${nextRunTs.toLocaleString()}`);
         return {...task, last_run: new Date(), next_run: nextRunTs}
     }
     return 0;
