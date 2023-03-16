@@ -1,6 +1,6 @@
 <?php
 
-require_once('/var/www/vhosts/leads.tua-car.it/httpdocs/classes/adodb5/adodb.inc.php');
+require_once('./adodb5/adodb.inc.php');
 
 $db_hostname = 'localhost';
 $db_username = 'tuacarusr';
