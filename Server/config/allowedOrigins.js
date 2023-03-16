@@ -1,6 +1,6 @@
 const allowedOrigins = [
     'http://tua-car-test.online',
-    'http://tua-car-test.online',
+    'https://tua-car-test.online',
     'http://141.95.54.84',
     'https://141.95.54.84',
     'http://127.0.0.1:3000',

@@ -6,7 +6,7 @@ const db = mysql.createConnection({
     password: "Tuacar.2023",
     database: "tuacarDb"
 })
-const url = 'http://tua-car-test.online/'
+const url = 'https://tua-car-test.online/'
 let timeOffset = new Date().getTimezoneOffset()
 let dtNow = new Date(new Date().getTime() - (timeOffset * 60 * 1000));
 let tsNow = Math.floor(dtNow.getTime() / 1000);
