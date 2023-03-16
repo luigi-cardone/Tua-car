@@ -1,5 +1,5 @@
 <?php
-require_once('./adodb5/adodb.inc.php');
+require_once('adodb5/adodb.inc.php');
 $db_hostname = 'localhost';
 $db_username = 'luigi_tuacar';
 $db_password = 'Tuacar.2023';
