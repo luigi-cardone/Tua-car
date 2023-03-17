@@ -1,6 +1,6 @@
 <?php
 require_once('adodb5/adodb.inc.php');
-$db_hostname = 'localhost';
+$db_hostname = '141.95.54.84';
 $db_username = 'luigi_tuacar';
 $db_password = 'Tuacar.2023';
 $db_dbname = 'tuacarDb';

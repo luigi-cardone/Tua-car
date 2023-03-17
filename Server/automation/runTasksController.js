@@ -43,7 +43,7 @@ db.query(q, async (err, scheduledTasks) =>{
 
 async function tryExecuteTask(task) {
     const hh_mm = task.schedule_start.split(":");
-    const runHour = parseInt(hh_mm[0]) -(timeOffset / 60)=== 24 ? 0 : runHour-(timeOffset / 60);
+    const runHour = parseInt(hh_mm[0]) -(timeOffset / 60)=== 24 ? 0 : parseInt(hh_mm[0]) -(timeOffset / 60);
     const runMinute = parseInt(hh_mm[1]);
     const currentDate = new Date();
     const runDate = currentDate;
