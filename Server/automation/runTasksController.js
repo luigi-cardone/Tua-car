@@ -70,7 +70,7 @@ async function tryExecuteTask(task) {
         let nextRunTs = new Date(nextRun + (task.schedule_repeat_h - (timeOffset / 60)=== 24 ? 0 : runHour-(timeOffset / 60)) * 3600 );
         console.log(`RunHour : ${runHour}`);
         console.log(`NextRun : ${nextRunTs.toLocaleString()}`);
-        return {...task, last_run: new Date(), next_run: nextRunTs}
+        return {...task, last_run: new Date(new Date().getTime() - (timeOffset * 60 * 1000)).toISOString().slice(0, 19).replace('T', ' '), next_run: nextRunTs.toISOString().slice(0, 19).replace('T', ' ')}
     }
     return 0;
 }

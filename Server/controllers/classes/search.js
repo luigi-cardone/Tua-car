@@ -62,7 +62,7 @@ export default class Search{
                     console.error(err);
                     if (typeof callback == "function") callback([]);
                 }
-                
+                console.log(data)
                 let returnData = JSON.parse(data);
                 if (data === 'null') {
                     returnData = [];
