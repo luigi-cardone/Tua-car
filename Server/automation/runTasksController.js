@@ -61,16 +61,22 @@ async function tryExecuteTask(task) {
         // run current scheduled task
         const mail_list = JSON.parse(task.schedule_cc)
         console.log("RUN NOW!!!");
-        var res = await axios.get(url+"user/user/"+task.user_id)
-        const user = res.data[0]
-        mail_list.push(user.email)
-        console.log("The email will be sent to the following addresses:")
-        console.log(mail_list)
-        await axios.post(url+'search', {name: user.name, mail_list: mail_list, setSpokiActive: 1, schedule_content: JSON.parse(task.schedule_content), user_id: task.user_id})
-        let nextRunTs = new Date(nextRun + (task.schedule_repeat_h - (timeOffset / 60)=== 24 ? 0 : runHour-(timeOffset / 60)) * 3600 );
-        console.log(`RunHour : ${runHour}`);
-        console.log(`NextRun : ${nextRunTs.toLocaleString()}`);
-        return {...task, last_run: new Date(new Date().getTime() - (timeOffset * 60 * 1000)).toISOString().slice(0, 19).replace('T', ' '), next_run: nextRunTs.toISOString().slice(0, 19).replace('T', ' ')}
+        try{
+            var res = await axios.get(url+"user/user/"+task.user_id)
+            const user = res.data[0]
+            mail_list.push(user.email)
+            console.log("The email will be sent to the following addresses:")
+            console.log(mail_list)
+            await axios.post(url+'search', {name: user.name, mail_list: mail_list, setSpokiActive: 1, schedule_content: JSON.parse(task.schedule_content), user_id: task.user_id})
+            let nextRunTs = new Date(nextRun + (task.schedule_repeat_h - (timeOffset / 60)=== 24 ? 0 : runHour-(timeOffset / 60)) * 3600 );
+            console.log(`RunHour : ${runHour}`);
+            console.log(`NextRun : ${nextRunTs.toLocaleString()}`);
+            return {...task, last_run: new Date(new Date().getTime() - (timeOffset * 60 * 1000)).toISOString().slice(0, 19).replace('T', ' '), next_run: nextRunTs.toISOString().slice(0, 19).replace('T', ' ')}
+        }
+        catch(err){
+            console.log(err)
+            return 0
+        }
     }
     return 0;
 }

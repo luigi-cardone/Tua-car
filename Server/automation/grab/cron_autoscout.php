@@ -1,27 +1,24 @@
 <?php
-require_once('adodb5/adodb.inc.php');
-$db_hostname = '141.95.54.84';
+$db_hostname = 'localhost';
 $db_username = 'luigi_tuacar';
 $db_password = 'Tuacar.2023';
 $db_dbname = 'tuacarDb';
 
-$db = &ADONewConnection('mysqli');
-if (!$db->Connect($db_hostname, $db_username, $db_password, $db_dbname))
-{
-  
-  echo "could not connect to database: ". $db->errorMsg();
-  exit;
+$db = mysqli_connect($db_hostname, $db_username, $db_password, $db_dbname);
+if (!$db) {
+    die('Could not connect: ' . mysqli_connect_error());
 }
 
 /* Set the desired charset after establishing a connection */
-$db->Execute("SET character_set_results = 'utf8mb4', character_set_client = 'utf8mb4', character_set_connection = 'utf8mb4', character_set_database = 'utf8mb4', character_set_server = 'utf8mb4'");
+/* Set the desired charset after establishing a connection */
+mysqli_query($db, "SET character_set_results = 'utf8mb4', character_set_client = 'utf8mb4', character_set_connection = 'utf8mb4', character_set_database = 'utf8mb4', character_set_server = 'utf8mb4'");
 
 $dealer = array();
 date_default_timezone_set("Europe/Rome");
 
 $max_pages = 21;
-    $i=1;
-    $exit_crawl = false;
+$i = 1;
+$exit_crawl = false;
 
 for ($page = 1; $page < $max_pages; $page++){
     # set_time_limit(60);
@@ -37,37 +34,11 @@ for ($page = 1; $page < $max_pages; $page++){
       //$file = file_get_contents($dealer['crawl_url'], false, $context);
       $p_data = getPage($dealer['crawl_url']);
       $file = $p_data['content'];
-      
-      //var_dump($http_response_header);
-      //echo $file;
-
-
-
-    # tuacarusr
-    # tuaPwCar1!
-
-    /* $ch = curl_init(); 
-    curl_setopt ($ch, CURLOPT_URL, $url); 
-    $result = curl_exec ($ch); 
-    echo $result;  
-    curl_close($ch);
-     */
-
-
-
       $doc = new DOMDocument; 
       @$doc->loadHTML($file);
 
 
     $finder = new DomXPath($doc);
-    
-    //$articles = $doc->getElementsByTagName('article')->item(0);
-    /* $anchors = $finder->query("//article/div/a");
-    foreach($anchors as $a)
-    { 
-        echo $a->nodeValue." - ".$a->getAttribute("href")."<br/>";
-    } */
-    
     $id= '__NEXT_DATA__';
     $ndata = $finder->query("//*[@id='$id']")->item(0)->nodeValue;
     
@@ -80,19 +51,17 @@ for ($page = 1; $page < $max_pages; $page++){
         
         echo "<br />";
         
-        /* 
-        $href = $finder->query(".//a",$entry);
-        $url = $href->item(0)->getAttribute('href');
-        
-        $article_id = $entry->getAttribute('id'); */
-        
         $article_id = $entry["id"];
         $url = $entry["url"];
 		echo "Questo è il time:" . date("Y-m-d H:i:s", time($t));
         if(isset($article_id)){
             // fn: get_location by zip :: $item['location']['zip']
-            $check_result = $db->Execute("SELECT id FROM cars_autoscout where urn='".$article_id."'");
-            if ($check_result->recordCount() == 0){
+            $stmt = mysqli_prepare($db, "SELECT id FROM cars_autoscout WHERE urn = ?");
+            mysqli_stmt_bind_param($stmt, "s", $article_id);
+            mysqli_stmt_execute($stmt);
+            mysqli_stmt_store_result($stmt);
+            $check_result = mysqli_stmt_num_rows($stmt);
+            if ($check_result == 0){
                 
                 echo '<br /><b>Insert: ' . $article_id .'</b> :: '. $url . '<br />';
         
@@ -147,10 +116,15 @@ for ($page = 1; $page < $max_pages; $page++){
                 
                 $sql = "INSERT INTO cars_autoscout (urn, subject, body, date_remote, pollution, fuel, vehicle_status, price, mileage_scalar, doors, register_date, register_year, geo_region, geo_provincia, geo_town, url, advertiser_name, advertiser_phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 // echo $sql."<br />";
-                $qw = $db->Execute($sql,$bindVars);
-                
-                $e = $db->errorMsg();
-                print $e;
+                // esegui la query
+                $stmt = $pdo->prepare($sql);
+                $result = $stmt->execute($bindVars);
+
+                // verifica eventuali errori
+                if (!$result) {
+                $error = $stmt->errorInfo();
+                $e = $error[2];
+                }
                 
                 print_r($data);
 
@@ -178,7 +152,11 @@ for ($page = 1; $page < $max_pages; $page++){
 /* Delete old records, 90 days ago */
 $deleteIntevalTs = time() - 86400 * 90; // 1day * 90
 $q = "delete from cars_autoscout where date_remote < '".date("Y-m-d H:i:s", $deleteIntevalTs)."'";
-$db->Execute($q);
+if ($db->query($q) === TRUE) {
+    echo "Record deleted successfully";
+} else {
+    echo "Error deleting record: " . $db->error;
+}
 // mail("devtest@vbstudio.it", "delquery", $q);
 
 function getPage($url){
