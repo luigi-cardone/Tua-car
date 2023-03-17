@@ -28,7 +28,7 @@ export default class Search{
 
     fabricateSearchQuery() {
         var query_conditions = []
-        if (this.geoTowns.length > 0) query_conditions.push(`geo_town in ('${this.geoTowns.join("','")}')`)
+        if (this.geoTowns.length > 0) query_conditions.push(`geo_town in ('${this.geoTowns.join("`,`")}')`)
         if (this.yearFrom !== "" && this.yearFrom !== undefined) query_conditions.push(`register_year >= '${this.yearFrom}'`)
         if (this.yearTo !== "" && this.yearTo !== undefined) query_conditions.push(`register_year <= '${this.yearTo}'`)
         if (this.mileageFrom !== "" && this.mileageFrom !== undefined) query_conditions.push(`mileage_scalar > '${this.mileageFrom}'`)
