@@ -30,14 +30,9 @@ function setSchedule(db, inputData, userId, res) {
         diffMinutes = (nextSchedTs - tsNow) / 60 / 1000;
     }
 
-    var dtNowString = dtNow.toISOString().slice(0, 19).replace("T", " ");
-    var dtSchedString = dtSched.toISOString().slice(0, 19).replace("T", " ");
-
     var nextRunDate = new Date();
     nextRunDate.setTime(nextSchedTs);
     var nextRunAt = nextRunDate;
-
-    debugText += "<br />Timediff:: " + dtSchedString + " - " + dtNowString + " = " + diffMinutes + " minuti --> nextRunAT: " + nextRunAt + "  <br />";
 
     var additionalMails = [];
     inputData.schedule_cc = inputData.schedule_cc.replace(/ /g, "");
@@ -91,8 +86,6 @@ function setSchedule(db, inputData, userId, res) {
             let q = "insert into scheduled_tasks (" + Object.keys(qVars).join(", ") + ") values (" + Array(qVars.length).fill("?").join(", ") + ")";
             db.query(q, [Object.values(qVars)] ,(err, data) =>{
                 if(err) console.log(err)
-                debugText += q;
-                console.log(debugText)
                 return res.json({
                     error: false,
                     message: returnText
