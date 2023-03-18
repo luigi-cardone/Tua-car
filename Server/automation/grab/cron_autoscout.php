@@ -1,18 +1,11 @@
 <?php
-$db_hostname = 'localhost';
 $db_username = 'luigi_tuacar';
 $db_password = 'Tuacar.2023';
-$db_dbname = 'tuacarDb';
 
-$db = mysqli_connect($db_hostname, $db_username, $db_password, $db_dbname);
+$db = new PDO('mysql:host=localhost;dbname=tuacarDb', $db_username, $db_password);
 if (!$db) {
     die('Could not connect: ' . mysqli_connect_error());
 }
-
-/* Set the desired charset after establishing a connection */
-/* Set the desired charset after establishing a connection */
-mysqli_query($db, "SET character_set_results = 'utf8mb4', character_set_client = 'utf8mb4', character_set_connection = 'utf8mb4', character_set_database = 'utf8mb4', character_set_server = 'utf8mb4'");
-
 $dealer = array();
 date_default_timezone_set("Europe/Rome");
 
@@ -53,15 +46,13 @@ for ($page = 1; $page < $max_pages; $page++){
         
         $article_id = $entry["id"];
         $url = $entry["url"];
-		echo "Questo è il time:" . date("Y-m-d H:i:s", time($t));
+		echo "Questo è il time: " . date("Y-m-d H:i:s", time());
         if(isset($article_id)){
             // fn: get_location by zip :: $item['location']['zip']
-            $stmt = mysqli_prepare($db, "SELECT id FROM cars_autoscout WHERE urn = ?");
-            mysqli_stmt_bind_param($stmt, "s", $article_id);
-            mysqli_stmt_execute($stmt);
-            mysqli_stmt_store_result($stmt);
-            $check_result = mysqli_stmt_num_rows($stmt);
-            if ($check_result == 0){
+            $stmt = $db->prepare("SELECT id FROM cars_autoscout WHERE urn = ?");
+            $stmt->execute([$article_id]);
+            $check_result = $stmt->fetchAll();
+            if (count($check_result) == 0){
                 
                 echo '<br /><b>Insert: ' . $article_id .'</b> :: '. $url . '<br />';
         
@@ -115,18 +106,16 @@ for ($page = 1; $page < $max_pages; $page++){
                 $bindVars = array_values($data);
                 
                 $sql = "INSERT INTO cars_autoscout (urn, subject, body, date_remote, pollution, fuel, vehicle_status, price, mileage_scalar, doors, register_date, register_year, geo_region, geo_provincia, geo_town, url, advertiser_name, advertiser_phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                // echo $sql."<br />";
-                // esegui la query
-                $stmt = $pdo->prepare($sql);
-                $result = $stmt->execute($bindVars);
+                // prepara la query
+                $stmt = $db->prepare($sql);
 
+                // bind dei parametri
+                $stmt->execute($bindVars);
+                $result = $stmt->fetchAll();
                 // verifica eventuali errori
                 if (!$result) {
-                $error = $stmt->errorInfo();
-                $e = $error[2];
+                    $e = $stmt->errorInfo();
                 }
-                
-                print_r($data);
 
             } else {
                 echo "<br /><b>".$article_id." already exists</b><br />";
@@ -155,7 +144,7 @@ $q = "delete from cars_autoscout where date_remote < '".date("Y-m-d H:i:s", $del
 if ($db->query($q) === TRUE) {
     echo "Record deleted successfully";
 } else {
-    echo "Error deleting record: " . $db->error;
+    echo "Error deleting record: " . $db->errorCode();
 }
 // mail("devtest@vbstudio.it", "delquery", $q);
 
@@ -215,19 +204,28 @@ function getGeoTags($db, $zip){
                   "cap" => $zip,
                   );
     
-    $q = $db->Execute("SELECT c.comune, c.regione, p.sigla, p.provincia from italy_cities c, italy_provincies p where c.cap='".$zip."' and p.sigla = c.provincia limit 1");
-    if ($q->RecordCount() > 0){
-        $r = $q->fetchRow();
+    $stmt = $db->prepare("SELECT c.comune, c.regione, p.sigla, p.provincia FROM italy_cities c, italy_provincies p WHERE c.cap = ? AND p.sigla = c.provincia LIMIT 1");
+
+    // Passa il valore del parametro alla query
+    $stmt->execute([$zip]);
+    $result = $stmt->fetchAll()[0];
+
+    if (!empty($result)) {
+        $data['regione'] = $result['regione'];
+        $data['provincia'] = $result['provincia'];
+        $data['sigla'] = $result['sigla'];
+        $data['comune'] = $result['comune'];
     } else {
         $limcap = substr($zip, 0, 3);
-        $q = $db->Execute("SELECT c.comune, c.regione, p.sigla, p.provincia from italy_cities c, italy_provincies p where c.cap like '".$limcap."%' and p.sigla = c.provincia limit 1");
-        $r = $q->fetchRow();
+        $sql = "SELECT c.comune, c.regione, p.sigla, p.provincia FROM italy_cities c JOIN italy_provincies p ON p.sigla = c.provincia WHERE c.cap LIKE ? LIMIT 1";
+        $stmt = $db->prepare($sql);
+        $limcapParam = $limcap."%";
+        $stmt->execute([$limcapParam]);
+        $result = $stmt->fetch();
+        $data['regione'] = $result['regione'];
+        $data['provincia'] = $result['provincia'];
+        $data['sigla'] = $result['sigla'];
+        $data['comune'] = $result['comune'];
     }
-
-    $data['regione'] = $r['regione'];
-    $data['provincia'] = $r['provincia'];
-    $data['sigla'] = $r['sigla'];
-    $data['comune'] = $r['comune'];
-    
     return $data;
 }

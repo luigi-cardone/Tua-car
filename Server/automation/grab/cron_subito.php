@@ -1,23 +1,11 @@
 <?php
+$db_username = 'luigi_tuacar';
+$db_password = 'Tuacar.2023';
 
-require_once('adodb5/adodb.inc.php');
-
-$db_hostname = 'localhost';
-$db_username = 'tuacarusr';
-$db_password = 'Ck#v00b3';
-$db_dbname = 'tuacardb';
-
-$db = &ADONewConnection('mysqli');
-if (!$db->Connect($db_hostname, $db_username, $db_password, $db_dbname))
-{
-  
-  echo "could not connect to database: ". $db->errorMsg();
-  exit;
+$db = new PDO('mysql:host=localhost;dbname=tuacarDb', $db_username, $db_password);
+if (!$db) {
+    die('Could not connect: ' . mysqli_connect_error());
 }
-
-/* Set the desired charset after establishing a connection */
-$db->Execute("SET character_set_results = 'utf8mb4', character_set_client = 'utf8mb4', character_set_connection = 'utf8mb4', character_set_database = 'utf8mb4', character_set_server = 'utf8mb4'");
-
 $dealer = array();
 date_default_timezone_set("Europe/Rome");
 
@@ -52,9 +40,6 @@ $user_agent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTM
                        )
     )
   );
-
-
-
   $context = stream_context_create($options);
 
 $max_pages = 21;
@@ -62,8 +47,6 @@ $max_pages = 21;
     $exit_crawl = false;
 
 for ($page = 1; $page < $max_pages; $page++){
-    
-
     $dealer['crawl_url'] = "https://www.subito.it/annunci-italia/vendita/auto/?o=".$page."&advt=0";
 
     echo "<br /><hr /><br />url = <a href='".$dealer['crawl_url']."' />".$dealer['crawl_url']."</a><br /><hr /><br />";
@@ -112,8 +95,10 @@ for ($page = 1; $page < $max_pages; $page++){
         $getphone='';
         if(isset($item['item']['urn'])){
             
-            $check_result = $db->Execute("SELECT id FROM cars_subito where urn='".$item['item']['urn']."'");
-            if ($check_result->recordCount() == 0){
+            $stmt = $db->prepare("SELECT id FROM cars_subito where urn= ?");
+            $stmt->execute([$item['item']['urn']]);
+            $check_result = $stmt->fetchAll();
+            if (count($check_result) == 0){
             
                 //$getphone = json_decode(file_get_contents('https://www.subito.it/hades/v1/contacts/ads/'.$item['item']['urn'], false, $context), true);
                 
@@ -156,10 +141,16 @@ for ($page = 1; $page < $max_pages; $page++){
                 $bindVars = array_values($data);
                 
                 $sql = "INSERT INTO cars_subito (urn, subject, body, date_remote, pollution, fuel, vehicle_status, price, mileage_scalar, doors, register_date, register_year, geo_region, geo_provincia, geo_town, url, advertiser_name, advertiser_phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                echo $sql."<br />";
-                $db->execute($sql,$bindVars);
-                
-                print_r($data);
+                // prepara la query
+                $stmt = $db->prepare($sql);
+
+                // bind dei parametri
+                $stmt->execute($bindVars);
+                $result = $stmt->fetchAll();
+                // verifica eventuali errori
+                if (!$result) {
+                    $e = $stmt->errorInfo();
+                }
                 
             } else {
                 echo "<br /><b>".$item['item']['urn']." already exists</b><br />";
@@ -167,15 +158,6 @@ for ($page = 1; $page < $max_pages; $page++){
             }
             
         }
-        
-        /* 
-        
-        echo $item['item']['urn'] . '(https://www.subito.it/hades/v1/contacts/ads/'.$item['item']['urn'] . ") phone:: ";
-        print_r($getphone);
-        
-        unset($item['item']['images']);
-        unset($item['item']['after']['images']);
-        print_r($item); */
         $i++;
     }
     
@@ -187,8 +169,12 @@ for ($page = 1; $page < $max_pages; $page++){
 
 /* Delete old records, 90 days ago */
 $deleteIntevalTs = time() - 86400 * 90; // 1day * 90
-$q = "delete from cars_subito where date_remote < '".date("Y-m-d H:i:s", $deleteIntevalTs)."'";
-$db->Execute($q);
+$q = "delete from cars_autoscout where date_remote < '".date("Y-m-d H:i:s", $deleteIntevalTs)."'";
+if ($db->query($q) === TRUE) {
+    echo "Record deleted successfully";
+} else {
+    echo "Error deleting record: " . $db->errorCode();
+}
 // mail("devtest@vbstudio.it", "delquery", $q);
 
 
