@@ -57,7 +57,7 @@ async function tryExecuteTask(task) {
     }
     let rs = (new Date(new Date(rd).getTime() - (timeOffset * 60 * 1000))).getTime() / 1000;
     //(rs < ts_hhmmAfter) && (rs > ts_hhmmBefore)
-    if (1) {
+    if ((rs < ts_hhmmAfter) && (rs > ts_hhmmBefore)) {
         // run current scheduled task
         const mail_list = JSON.parse(task.schedule_cc)
         console.log("RUN NOW!!!");
