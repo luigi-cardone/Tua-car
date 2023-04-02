@@ -49,6 +49,7 @@ for ($page = 1; $page < $max_pages; $page++){
 		echo "Questo è il time: " . date("Y-m-d H:i:s", time());
         if(isset($article_id)){
             // fn: get_location by zip :: $item['location']['zip']
+            echo "urn: " + $article_id; 
             $stmt = $db->prepare("SELECT id FROM cars_autoscout WHERE urn = ?");
             $stmt->execute([$article_id]);
             $check_result = $stmt->fetchAll();
