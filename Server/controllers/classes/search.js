@@ -11,7 +11,8 @@ I metodi, azioni, possibili sono le seguenti
 const DUPLICATES_PATH = "webfiles/duplicates/";
 const db_platform = {
     "platform-01": "cars_autoscout",
-    "platform-02": "cars_subito"
+    "platform-02": "cars_subito",
+    "platform-03": "cars_facebook"
   }
 export default class Search{
     constructor({user_id, platform, yearFrom, yearTo, mileageFrom, mileageTo, geoRegion, geoProvince, geoTowns}){

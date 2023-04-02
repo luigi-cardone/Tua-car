@@ -4,7 +4,8 @@ import fs from 'fs'
 import Mailer from './classes/mailer.js'
 const db_platform = {
     "platform-01": "cars_autoscout",
-    "platform-02": "cars_subito"
+    "platform-02": "cars_subito",
+    "platform-03": "cars_facebook"
   }
 
 const EXPORTS_PATH = "webfiles/exports/"
