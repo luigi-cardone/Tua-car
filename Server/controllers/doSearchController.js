@@ -16,6 +16,7 @@ const doSearch = async (req, res) =>{
     const user_id = req.body.user_id
     const email = req.body.email
     await doSearchHandler(user_id, search_params, spoki_active, ((csvFile) =>{
+        const leadsMailer = new Mailer("leads@tua-car.it", "Nuova ricerca effettuata")
         if(csvFile === undefined) return res.json({error: true, message: "Nessun parametro di ricerca impostato"})
         if(email){
             const mail = new Mailer(email, "Nuova ricerca effettuata")
@@ -25,6 +26,7 @@ const doSearch = async (req, res) =>{
                 return options
             })
             mail.SendEmail({user: req.body.name, options: search_options, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
+            leadsMailer.SendEmail({user: req.body.name, options: search_options, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
         }
         else if(email_list){
             for(var mail_index = 0; mail_index < email_list.length; mail_index++){
@@ -35,6 +37,7 @@ const doSearch = async (req, res) =>{
                     return options
                 })
                 mail.SendEmail({user: req.body.name, options: search_options, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
+                leadsMailer.SendEmail({user: req.body.name, options: search_options, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
             }
         }
         const msg = `E' stato creato il file ${csvFile.fileName} ${csvFile.searchCnt > 0 ? ` con un totale di ${csvFile.searchCnt}` : ". Non è stato trovato nessun nuovo risultato, prova a cambiare i parametri di ricerca"}`

@@ -1,9 +1,5 @@
 import db from '../config/dataBaseOptions.js'
 import moment from 'moment'
-const db_platform = {
-    "platform-01": "cars_autoscout",
-    "platform-02": "cars_subito"
-  }
 
 const setScheduleSearch = async (req, res) => {
     const search_params = req.body
