@@ -3,10 +3,10 @@
     AddBulkContacts($db);
     
 	function AddBulkContacts($db){
-        // This functions is scheaduled to run every day at 2 a.m.
         // It add all contacts from the csv files collected during the day
         $tasks = array();
         $tasks = GetAllSpokiTasks($db);
+        print_r("Got " . count($tasks) . " to run");
         if($tasks != false){
             foreach ($tasks as $task){
             $userDataQuerry = $db->query("SELECT * FROM `users_data` WHERE `user_id`=". $task['user_id'] ." && `IsSpokiEnabled`= true");
@@ -15,7 +15,7 @@
             {
                 ReadAndSendToSpoki($userData['spoki_api'], $task["search_filename"], $task["user_id"], $userData['Secret'], $userData['uuID']);
                 $db->query("UPDATE `searches` SET `SpokiSchedActive`= false WHERE `search_id` = ". $task["search_id"] ."");
-				echo "Task eseguita";
+				print_r("Task eseguita");
             }
             }
         }
@@ -29,7 +29,7 @@
 		*/
 		$row = 1;
 		$count = 1;
-		if (($handle = fopen("/var/www/vhosts/leads.tua-car.it/httpdocs/webfiles/exports/$user_id/$file_name", 'r')) !== FALSE) 
+		if (($handle = fopen("../webfiles/exports/$user_id/$file_name", 'r')) !== FALSE) 
 		{
             while (($data = fgetcsv($handle, 0, ';')) !== FALSE) 
             {
@@ -75,7 +75,7 @@
 
 		curl_close($curl);
 
-        echo $response;
+        print_r($response);
 	}
 	
 	function GetAllSpokiTasks($db)
@@ -111,5 +111,5 @@
 		
 		$response = curl_exec($curl);
         curl_close($curl);
-        echo $response;
+        print_r($response);
         }
