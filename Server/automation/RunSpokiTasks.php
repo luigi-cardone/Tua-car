@@ -1,5 +1,5 @@
 <?php
-	$db = new \PDO("mysql:host=localhost;dbname=tuacarDb", "luigi_tuacar", "Tuacar.2023");
+	$db = new \PDO("mysql:host=141.95.54.84;dbname=tuacarDb", "luigi_tuacar", "Tuacar.2023");
     AddBulkContacts($db);
     
 	function AddBulkContacts($db){
@@ -11,6 +11,7 @@
             foreach ($tasks as $task){
             $userDataQuerry = $db->query("SELECT * FROM `users_data` WHERE `user_id`=". $task['user_id'] ." && `IsSpokiEnabled`= true");
             $userData = $userDataQuerry->fetch(PDO::FETCH_ASSOC);
+            print_r($userData);
             if($userData != false)
             {
                 ReadAndSendToSpoki($userData['spoki_api'], $task["search_filename"], $task["user_id"], $userData['Secret'], $userData['uuID']);
