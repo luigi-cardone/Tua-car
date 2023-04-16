@@ -15,7 +15,7 @@
             if($userData != false)
             {
                 ReadAndSendToSpoki($userData['spoki_api'], $task["search_filename"], $task["user_id"], $userData['Secret'], $userData['uuID']);
-                $db->query("UPDATE `searches` SET `SpokiSchedActive`= false WHERE `search_id` = ". $task["search_id"] ."");
+                //$db->query("UPDATE `searches` SET `SpokiSchedActive`= false WHERE `search_id` = ". $task["search_id"] ."");
 				print_r("Task eseguita");
             }
             }
