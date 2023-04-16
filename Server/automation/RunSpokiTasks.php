@@ -74,7 +74,7 @@
 		$response = curl_exec($curl);
 
 		curl_close($curl);
-
+        print_r("Contact: " + $tel + " was added to the contact list");
         print_r($response);
 	}
 	
@@ -111,5 +111,6 @@
 		
 		$response = curl_exec($curl);
         curl_close($curl);
+        print_r("Automation run successflly");
         print_r($response);
         }
