@@ -6,17 +6,16 @@
         // It add all contacts from the csv files collected during the day
         $tasks = array();
         $tasks = GetAllSpokiTasks($db);
-        print_r("Got " . count($tasks) . " to run");
+        print_r("Got " . count($tasks) . " to run\n");
         if($tasks != false){
             foreach ($tasks as $task){
             $userDataQuerry = $db->query("SELECT * FROM `users_data` WHERE `user_id`=". $task['user_id'] ." && `IsSpokiEnabled`= true");
             $userData = $userDataQuerry->fetch(PDO::FETCH_ASSOC);
-            print_r($userData);
             if($userData != false)
             {
                 ReadAndSendToSpoki($userData['spoki_api'], $task["search_filename"], $task["user_id"], $userData['Secret'], $userData['uuID']);
-                //$db->query("UPDATE `searches` SET `SpokiSchedActive`= false WHERE `search_id` = ". $task["search_id"] ."");
-				print_r("Task eseguita");
+                $db->query("UPDATE `searches` SET `SpokiSchedActive`= false WHERE `search_id` = ". $task["search_id"] ."");
+				print_r("Task eseguita\n");
             }
             }
         }
@@ -30,7 +29,9 @@
 		*/
 		$row = 1;
 		$count = 1;
-		if (($handle = fopen("../webfiles/exports/$user_id/$file_name", 'r')) !== FALSE) 
+		$handle = fopen(__DIR__ . "/../webfiles/exports/$user_id/$file_name", 'r');
+		print_r($handle . "\n");
+		if ($handle)
 		{
             while (($data = fgetcsv($handle, 0, ';')) !== FALSE) 
             {
@@ -75,8 +76,6 @@
 		$response = curl_exec($curl);
 
 		curl_close($curl);
-        print_r("Contact: " + $tel + " was added to the contact list");
-        print_r($response);
 	}
 	
 	function GetAllSpokiTasks($db)
@@ -109,9 +108,5 @@
             }
         }',
         ));
-		
-		$response = curl_exec($curl);
         curl_close($curl);
-        print_r("Automation run successflly");
-        print_r($response);
         }
