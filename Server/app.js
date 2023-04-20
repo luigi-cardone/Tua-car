@@ -29,7 +29,10 @@ app.use(express.json())
 app.use(credentials)
 // app.use(cors(corsOptions))
 app.use(cors(
-  {origin: '*'}
+  {
+    origin: '*',
+    methods: ['GET','POST','DELETE','UPDATE','PUT','PATCH']
+  }
 ))
 app.use(cookieParser())
 
