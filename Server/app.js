@@ -27,13 +27,7 @@ const app = express()
 app.use(express.json())
 
 app.use(credentials)
-// app.use(cors(corsOptions))
-app.use(cors(
-  {
-    origin: '*',
-    methods: ['GET','POST','DELETE','UPDATE','PUT','PATCH']
-  }
-))
+app.use(cors(corsOptions))
 app.use(cookieParser())
 
 app.use(express.static(path.join(__dirname + "/public")))
