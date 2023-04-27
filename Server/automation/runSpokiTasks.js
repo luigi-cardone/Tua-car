@@ -92,12 +92,13 @@ for(var i = 0; i < spokiTasks.length; i++){
     .on("error", function (error) {
         console.log(error.message);
     })
-    .on("end", function () {
+    .on("end", async function () {
         for(var i = 0; i < customersInfo.length; i++){
             AddToSpoki(customersInfo[i].customer, customersInfo[i].tel, user.spoki_api)
             SendMessage(customersInfo[i].customer, customersInfo[i].tel, user.Secret, user.uuID, customersInfo[i].vehicle)
         }
     });
+    await query(`UPDATE searches SET SpokiSchedActive = false WHERE search_id = ${spokiTasks[i].search_id}`)
 }
 
 
