@@ -17,6 +17,7 @@
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
+    "csv-parse": "^5.3.8",
     "date-fns": "^2.29.3",
     "dotenv": "^16.0.3",
     "dotenv-webpack": "^8.0.1",
