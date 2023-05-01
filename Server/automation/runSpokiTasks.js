@@ -84,7 +84,7 @@ console.log(`Got ${spokiTasks.length} flagged to run:`)
 
 for(var i = 0; i < spokiTasks.length; i++){
     var user = spokiUsers.find(user => user.user_id === spokiTasks[i].user_id)
-    fs.createReadStream('./Server/'+spokiTasks[i].search_path)
+    fs.createReadStream(spokiTasks[i].search_path)
     .pipe(parse({ delimiter: ";", from_line: 1, columns: true, ltrim: true}))
     .on("data", function (row) {
         customersInfo.push({tel : row.Cel === '' ? row.Tel : row.Cel, customer: row.Nominativo || "Gentile Cliente", vehicle: row['Veicolo (Marca Modello Versione)']})
