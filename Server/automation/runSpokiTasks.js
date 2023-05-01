@@ -17,7 +17,7 @@ const db = mysql.createConnection({
 })
 
 const AddToSpoki = (name, tel, api_key) =>{
-    var myHeaders = new Headers([["X-Spoki-Api-Key", api_key], ["Content-Type", "application/json"]])
+    var myHeaders = Headers()
     var raw = `{\n    \"phone\": \"${tel}\",\n    \"first_name\": \"${name}\",\n    \"last_name\": \"\",\n    \"email\": \"\",\n    \"language\": \"it\",\n    \"contactfield_set\": []\n}`;
     const userData = JSON.stringify({
         phone: tel,
@@ -29,7 +29,7 @@ const AddToSpoki = (name, tel, api_key) =>{
     })
     var requestOptions = {
     method: 'POST',
-    headers: myHeaders,
+    headers: [...myHeaders, ["X-Spoki-Api-Key", api_key], ["Content-Type", "application/json"]],
     body: userData,
     redirect: 'follow'
     };
