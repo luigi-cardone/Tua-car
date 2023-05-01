@@ -3,7 +3,7 @@ import util from 'util'
 import fs from 'fs'
 import {parse} from 'csv-parse'
 import path from "path"
-import fetch from 'node-fetch'
+import fetch, {Headers} from 'node-fetch'
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -17,7 +17,7 @@ const db = mysql.createConnection({
 })
 
 const AddToSpoki = (name, tel, api_key) =>{
-    var myHeaders = new fetch.Headers();
+    var myHeaders = Headers
     myHeaders.append("X-Spoki-Api-Key", api_key);
     myHeaders.append("Content-Type", "application/json");
 
