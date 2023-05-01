@@ -41,8 +41,6 @@ const AddToSpoki = (name, tel, api_key) =>{
 }
 
 const SendMessage = (name, tel, secret, uuID, vehicle_name) =>{
-    var myHeaders = new fetch.Headers();
-    myHeaders.append("Content-Type", "application/json");
 
     var raw = `{\n    \"secret\": \"{{secret}}\",\n    \"phone\": \"+393331234567\",\n    \"first_name\": \"Mario\",\n    \"last_name\": \"Rossi\",\n    \"email\": \"mario.rossi@domain.com\",\n    \"custom_fields\": {\n        \"ORDER_ID\": \"1234\"\n    }\n}`;
 
@@ -59,6 +57,7 @@ const SendMessage = (name, tel, secret, uuID, vehicle_name) =>{
 
     var requestOptions = {
     method: 'POST',
+    headers: {"Content-Type": "application/json"},
     body: userData,
     redirect: 'follow'
     };
