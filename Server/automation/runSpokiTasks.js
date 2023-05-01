@@ -94,7 +94,7 @@ for(var i = 0; i < spokiTasks.length; i++){
             SendMessage(customersInfo[i].customer, customersInfo[i].tel, user.Secret, user.uuID, customersInfo[i].vehicle)
         }
     });
-    //await query(`UPDATE searches SET SpokiSchedActive = false WHERE search_id = ${spokiTasks[i].search_id}`)
+    await query(`UPDATE searches SET SpokiSchedActive = false WHERE search_id = ${spokiTasks[i].search_id}`)
 }
 
 
