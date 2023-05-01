@@ -3,6 +3,7 @@ import util from 'util'
 import fs from 'fs'
 import {parse} from 'csv-parse'
 import path from "path"
+import fetch from 'node-fetch'
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -16,7 +17,7 @@ const db = mysql.createConnection({
 })
 
 const AddToSpoki = (name, tel, api_key) =>{
-    var myHeaders = new Headers();
+    var myHeaders = new fetch.Headers();
     myHeaders.append("X-Spoki-Api-Key", api_key);
     myHeaders.append("Content-Type", "application/json");
 
@@ -44,7 +45,7 @@ const AddToSpoki = (name, tel, api_key) =>{
 }
 
 const SendMessage = (name, tel, secret, uuID, vehicle_name) =>{
-    var myHeaders = new Headers();
+    var myHeaders = new fetch.Headers();
     myHeaders.append("Content-Type", "application/json");
 
     var raw = `{\n    \"secret\": \"{{secret}}\",\n    \"phone\": \"+393331234567\",\n    \"first_name\": \"Mario\",\n    \"last_name\": \"Rossi\",\n    \"email\": \"mario.rossi@domain.com\",\n    \"custom_fields\": {\n        \"ORDER_ID\": \"1234\"\n    }\n}`;
@@ -84,7 +85,7 @@ console.log(`Got ${spokiTasks.length} flagged to run:`)
 
 for(var i = 0; i < spokiTasks.length; i++){
     var user = spokiUsers.find(user => user.user_id === spokiTasks[i].user_id)
-    fs.createReadStream(spokiTasks[i].search_path)
+    fs.createReadStream(path.join(__dirname , '../' + spokiTasks[i].search_path))
     .pipe(parse({ delimiter: ";", from_line: 1, columns: true, ltrim: true}))
     .on("data", function (row) {
         customersInfo.push({tel : row.Cel === '' ? row.Tel : row.Cel, customer: row.Nominativo || "Gentile Cliente", vehicle: row['Veicolo (Marca Modello Versione)']})
@@ -98,7 +99,7 @@ for(var i = 0; i < spokiTasks.length; i++){
             SendMessage(customersInfo[i].customer, customersInfo[i].tel, user.Secret, user.uuID, customersInfo[i].vehicle)
         }
     });
-    await query(`UPDATE searches SET SpokiSchedActive = false WHERE search_id = ${spokiTasks[i].search_id}`)
+    //await query(`UPDATE searches SET SpokiSchedActive = false WHERE search_id = ${spokiTasks[i].search_id}`)
 }
 
 
