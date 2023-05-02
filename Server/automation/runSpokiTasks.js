@@ -28,8 +28,8 @@ const AddToSpoki = (name, tel, api_key) =>{
     })
     var requestOptions = {
     method: 'POST',
-    headers: [{"X-Spoki-Api-Key": api_key}, {"Content-Type": "application/json"}],
-    body: userData,
+    headers: {"X-Spoki-Api-Key": api_key, "Content-Type": "application/json"},
+    body: raw,
     redirect: 'follow'
     };
 
@@ -42,7 +42,7 @@ const AddToSpoki = (name, tel, api_key) =>{
 
 const SendMessage = (name, tel, secret, uuID, vehicle_name) =>{
 
-    var raw = `{\n    \"secret\": \"{{secret}}\",\n    \"phone\": \"+393331234567\",\n    \"first_name\": \"Mario\",\n    \"last_name\": \"Rossi\",\n    \"email\": \"mario.rossi@domain.com\",\n    \"custom_fields\": {\n        \"ORDER_ID\": \"1234\"\n    }\n}`;
+    var raw = `{\n    \"secret\": \"${secret}\",\n    \"phone\": \"${tel}\",\n    \"first_name\": \"${name}\",\n    \"last_name\": \"\",\n    \"email\": \"\",\n    \"custom_fields\": {\n        \"link_auto\": \"${vehicle_name}\"\n    }\n}`;
 
     const userData = JSON.stringify({
         secret: secret,
@@ -58,7 +58,7 @@ const SendMessage = (name, tel, secret, uuID, vehicle_name) =>{
     var requestOptions = {
     method: 'POST',
     headers: {"Content-Type": "application/json"},
-    body: userData,
+    body: raw,
     redirect: 'follow'
     };
 
