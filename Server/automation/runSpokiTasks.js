@@ -18,14 +18,7 @@ const db = mysql.createConnection({
 
 const AddToSpoki = (name, tel, api_key) =>{
     var raw = `{\n    \"phone\": \"${tel}\",\n    \"first_name\": \"${name}\",\n    \"last_name\": \"\",\n    \"email\": \"\",\n    \"language\": \"it\",\n    \"contactfield_set\": []\n}`;
-    const userData = JSON.stringify({
-        phone: tel,
-        first_name: name,
-        last_name: "",
-        email: "",
-        language: "it",
-        contactfield_set: []
-    })
+    
     var requestOptions = {
     method: 'POST',
     headers: {"X-Spoki-Api-Key": api_key, "Content-Type": "application/json"},
@@ -43,17 +36,6 @@ const AddToSpoki = (name, tel, api_key) =>{
 const SendMessage = (name, tel, secret, uuID, vehicle_name) =>{
 
     var raw = `{\n    \"secret\": \"${secret}\",\n    \"phone\": \"${tel}\",\n    \"first_name\": \"${name}\",\n    \"last_name\": \"\",\n    \"email\": \"\",\n    \"custom_fields\": {\n        \"link_auto\": \"${vehicle_name}\"\n    }\n}`;
-
-    const userData = JSON.stringify({
-        secret: secret,
-        phone: tel,
-        first_name: name,
-        last_name: "",
-        email: "",
-        custom_fields: {
-        link_auto: vehicle_name
-        }
-    })
 
     var requestOptions = {
     method: 'POST',
@@ -90,7 +72,7 @@ for(var i = 0; i < spokiTasks.length; i++){
     })
     .on("end", async function () {
         for(var i = 0; i < customersInfo.length; i++){
-            AddToSpoki(customersInfo[i].customer, customersInfo[i].tel, user.spoki_api)
+            //AddToSpoki(customersInfo[i].customer, customersInfo[i].tel, user.spoki_api)
             SendMessage(customersInfo[i].customer, customersInfo[i].tel, user.Secret, user.uuID, customersInfo[i].vehicle)
         }
     });
