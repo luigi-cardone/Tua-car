@@ -9,7 +9,9 @@ const allowedOrigins = [
     'http://localhost:8000',
     'https://3.75.158.163:8000',
     'https://3.125.183.140:8000',
-    'https://35.157.117.28:8000'
+    'https://35.157.117.28:8000',
+    'https://leads.tua-car.it',
+    'https://www.leads.tua-car.it'
 ]
 
 export default allowedOrigins
