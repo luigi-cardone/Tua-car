@@ -19,9 +19,9 @@ const getUserScheduledTask = (req, res) =>{
 }
 
 const updateUserBioData = (req, res) =>{
-    const {name, company, vat_number, ssn_number, address, zip, city, state, region, location, phone, user_id} = req.body
-    const q = "UPDATE users_data JOIN users ON users_data.user_id = users.id SET users_data.name = ?, users_data.company = ?, users_data.vat_number = ?, users_data.ssn_number = ?, users_data.address = ?, users_data.zip = ?, users_data.city = ?, users_data.state = ?, users_data.region = ?, users_data.location = ?, users_data.phone = ? WHERE user_id = ?"
-    db.query(q, [name, company, vat_number, ssn_number, address, zip, city, state, region, location, phone, user_id], (err, data)=>{
+    const {status, roles_mask, name, company, vat_number, ssn_number, address, zip, city, state, region, location, phone, user_id} = req.body
+    const q = "UPDATE users_data JOIN users ON users_data.user_id = users.id SET status = ?, roles_mask = ?, users_data.name = ?, users_data.company = ?, users_data.vat_number = ?, users_data.ssn_number = ?, users_data.address = ?, users_data.zip = ?, users_data.city = ?, users_data.state = ?, users_data.region = ?, users_data.location = ?, users_data.phone = ? WHERE user_id = ?"
+    db.query(q, [status, roles_mask, name, company, vat_number, ssn_number, address, zip, city, state, region, location, phone, user_id], (err, data)=>{
         if(err) {
             console.log(err)
             return res.json({'error' : true, 'message' : err})
