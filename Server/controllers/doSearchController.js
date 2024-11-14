@@ -7,7 +7,6 @@ const db_platform = {
     "platform-02": "cars_subito",
     "platform-03": "cars_facebook"
   }
-
 const EXPORTS_PATH = "webfiles/exports/"
 const doSearch = async (req, res) =>{
     const search_params = req.body.schedule_content
@@ -48,7 +47,7 @@ const doSearch = async (req, res) =>{
 export const doSearchHandler = async (user_id, search_params, spoki_active, callback) =>{
     const csvData = []
     var loop_counter = 0
-    if(search_params !== {}){
+    if(Object.keys(search_params).length > 0){
         Object.entries(search_params).forEach(([platform, platform_params]) =>{
             const search = new Search({...platform_params, user_id : user_id})
             const search_query = search.fabricateSearchQuery()
@@ -114,6 +113,7 @@ async function writeCsv(data, searchOptions, db, user_id, spoki_active, callback
     if(!fs.existsSync(filePath)) {
         fs.mkdirSync(filePath, 0o775)
     }
+
     const fp = fs.openSync(`${filePath}/${fileName}`, 'w');
     fs.chmodSync(`${filePath}/${fileName}`, 0o755);
   
