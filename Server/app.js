@@ -19,6 +19,9 @@ import towns from "./routes/towns.js";
 import path from 'path'
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+//NEW IMPORT
+import fs from 'fs';
+import doSearch from "./controllers/doSearchController.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -45,6 +48,34 @@ app.use('/search', verifyJWT, search);
 app.use('/scheduledSearch', verifyJWT, scheduledSearch);
 app.use('/deleteSchedule', verifyJWT, deleteSchedule);
 app.use('/towns', verifyJWT, towns);
+
+//EDITED
+app.get("/export", (req, res) => {
+  const { filePath, fileName } = req.query;
+  const fullPath = path.join(__dirname, filePath);
+  
+    // Read the file contents
+    fs.readFile(fullPath, (err, data) => {
+      if (err) {
+        console.error("Error reading file:", err);
+        return res.status(500).send("Internal Server Error" + err);
+      }
+  
+      // Set the appropriate headers for CSV response
+      res.setHeader("Content-Type", "text/csv");
+      res.setHeader("Content-Disposition", `attachment; filename=${fileName}`);
+  
+      // Send the file contents as the response
+      res.send(data);
+    });
+});
+//NEW PATH
+app.post("/searching", doSearch);
+
+app.post('/webfiles/exports/', (req, res) =>{
+    const file_path = req.body.file_path
+    res.sendFile("./webfiles/exports/"+file_path, {root: __dirname})
+})
 
 // Serve static files
 app.use(express.static(path.join(__dirname, '/public')));

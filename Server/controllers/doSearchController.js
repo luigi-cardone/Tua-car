@@ -7,6 +7,7 @@ const db_platform = {
     "platform-02": "cars_subito",
     "platform-03": "cars_facebook"
   }
+
 const EXPORTS_PATH = "webfiles/exports/"
 const doSearch = async (req, res) =>{
     const search_params = req.body.schedule_content
@@ -89,6 +90,9 @@ export const doSearchHandler = async (user_id, search_params, spoki_active, call
                         var nw = duplicates.concat(newDuplicates);
                         await search.writeDuplicates(nw, db)
                         csvData.push(returnData)
+                        // Scrittura di un JSON per visualizzare l'output di csvData
+                        /*const jsonCsvData = JSON.stringify(csvData);
+                        fs.writeFileSync('csvData.json', jsonCsvData, 'utf-8');*/
                         loop_counter++
                         if(loop_counter === Object.entries(search_params).length){
                             await writeCsv(csvData, search_params, db, user_id, spoki_active, (csv_file) =>{
@@ -113,21 +117,36 @@ async function writeCsv(data, searchOptions, db, user_id, spoki_active, callback
     if(!fs.existsSync(filePath)) {
         fs.mkdirSync(filePath, 0o775)
     }
-
     const fp = fs.openSync(`${filePath}/${fileName}`, 'w');
     fs.chmodSync(`${filePath}/${fileName}`, 0o755);
   
     const headers = ["Veicolo (Marca Modello Versione)", "Trattativa", "Nominativo", "Indirizzo", "Località", "Tel", "Cel", "Mail", "WebLink", "Nota_1", "Nota_2", "Nota_3", "Nota_4", "Nota_5", "PrezzoMin", "PrezzoMax"];
     fs.writeSync(fp, headers.join(";") + "\n");
     let cnt = 0;
+    let results = []
+    // Suddivisione dei risultati dentro ogni platform_index
     data.forEach((platform_index) => {
-        platform_index.forEach((item) =>{
+        let platform;
+        switch (user_id) {
+            case 19:
+                platform = platform_index.slice(0, Math.ceil(platform_index.length / 2));
+                break;
+            case 36:
+                platform = platform_index.slice(Math.ceil(platform_index.length / 2));
+                break;
+            default:
+                platform = platform_index;
+                break;
+        };
+        platform.forEach((item) =>{
+            results.push(item.id);
             cnt++;
             item.advertiser_name = item.advertiser_name || "Gentile Cliente";
             const field = [item.subject, "A", item.advertiser_name, "", item.geo_town, "", item.advertiser_phone, "", item.url, item.mileage_scalar, item.fuel, item.pollution, "", "", "", item.price];
             fs.writeSync(fp, field.join(";") + "\n");
-        })
+        });
     });
+
     fs.closeSync(fp);
     var q = "insert into searches (user_id, search_filename, search_path, search_options, search_results, search_date, SpokiSchedActive) values( ? , ?, ?, ?, ?, ?, ?)"
     try{
