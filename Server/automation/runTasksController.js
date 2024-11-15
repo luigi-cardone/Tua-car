@@ -42,41 +42,57 @@ db.query(q, async (err, scheduledTasks) =>{
 })
 
 async function tryExecuteTask(task) {
-    const hh_mm = task.schedule_start.split(":");
-    const runHour = parseInt(hh_mm[0]) -(timeOffset / 60)=== 24 ? 0 : parseInt(hh_mm[0]) -(timeOffset / 60);
-    const runMinute = parseInt(hh_mm[1]);
-    const currentDate = new Date();
-    const runDate = currentDate;
-    var nextRun = currentDate
-    runDate.setHours(runHour, runMinute, 0, 0);
-    let rd = "";
-    while (runDate < dtNow) {
-        rd = runDate.toISOString().slice(0, 19).replace('T', ' ');
-        console.log(`rd: ${rd}`);
-        runDate.setHours(runDate.getHours() + task.schedule_repeat_h);
-    }
-    let rs = (new Date(new Date(rd).getTime() - (timeOffset * 60 * 1000))).getTime() / 1000;
-    //(rs < ts_hhmmAfter) && (rs > ts_hhmmBefore)
-    if ((rs < ts_hhmmAfter) && (rs > ts_hhmmBefore)) {
-        // run current scheduled task
-        const mail_list = JSON.parse(task.schedule_cc)
-        console.log("RUN NOW!!!");
-        try{
-            var res = await axios.get(url+"user/user/"+task.user_id)
-            const user = res.data[0]
-            mail_list.push(user.email)
-            console.log("The email will be sent to the following addresses:")
-            console.log(mail_list)
-            await axios.post(url+'search', {name: user.name, mail_list: mail_list, setSpokiActive: 1, schedule_content: JSON.parse(task.schedule_content), user_id: task.user_id})
-            let nextRunTs = new Date(nextRun + (task.schedule_repeat_h - (timeOffset / 60)=== 24 ? 0 : runHour-(timeOffset / 60)) * 3600 );
-            console.log(`RunHour : ${runHour}`);
-            console.log(`NextRun : ${nextRunTs.toLocaleString()}`);
-            return {...task, last_run: new Date(new Date().getTime() - (timeOffset * 60 * 1000)).toISOString().slice(0, 19).replace('T', ' '), next_run: nextRunTs.toISOString().slice(0, 19).replace('T', ' ')}
+    try {
+        const [hour, minute] = task.schedule_start.split(":").map(Number);
+        const adjustedHour = (hour - timeOffset / 60 + 24) % 24; // Adjust for offset and wrap around
+        const currentDate = new Date();
+        const runDate = new Date(currentDate);
+        runDate.setHours(adjustedHour, minute, 0, 0);
+
+        // Calculate the last run time
+        while (runDate < dtNow) {
+            runDate.setHours(runDate.getHours() + task.schedule_repeat_h);
         }
-        catch(err){
-            console.log(err)
-            return 0
+
+        const lastRunTime = runDate.toISOString().slice(0, 19).replace('T', ' ');
+        const lastRunTimestamp = new Date(lastRunTime).getTime() - timeOffset * 60 * 1000;
+
+        if (lastRunTimestamp < ts_hhmmAfter && lastRunTimestamp > ts_hhmmBefore) {
+            console.log("RUN NOW!!!");
+
+            const mailList = JSON.parse(task.schedule_cc);
+            const userRes = await axios.get(`${url}user/user/${task.user_id}`);
+            const user = userRes.data[0];
+            mailList.push(user.email);
+
+            console.log("The email will be sent to the following addresses:", mailList);
+
+            await axios.post(`${url}search`, {
+                name: user.name,
+                mail_list: mailList,
+                setSpokiActive: 1,
+                schedule_content: JSON.parse(task.schedule_content),
+                user_id: task.user_id,
+            });
+
+            const nextRun = new Date(
+                currentDate.getTime() + task.schedule_repeat_h * 3600 * 1000
+            );
+            console.log(`Next Run Scheduled at: ${nextRun.toLocaleString()}`);
+
+            return {
+                ...task,
+                last_run: new Date(currentDate.getTime() - timeOffset * 60 * 1000)
+                    .toISOString()
+                    .slice(0, 19)
+                    .replace('T', ' '),
+                next_run: nextRun.toISOString().slice(0, 19).replace('T', ' '),
+            };
         }
+    } catch (err) {
+        console.error("Error in tryExecuteTask:", err);
+        return 0;
     }
+    console.log("Error in outer loop:");
     return 0;
 }
