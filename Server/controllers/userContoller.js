@@ -61,7 +61,6 @@ const updateSpokiData = (req, res) =>{
 
 const deleteUser = (req, res) =>{
     const user_id = req.body.user_id
-    console.log(user_id)
     var q = "DELETE FROM `users` WHERE `id` = ?"
     db.query(q, [user_id], (err, data)=>{
         if(err) return res.json({'error' : true, 'message' : 'errore'})

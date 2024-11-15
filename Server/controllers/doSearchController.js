@@ -25,7 +25,7 @@ const doSearch = async (req, res) =>{
                 options = {...options, platform: db_platform[platform]}
                 return options
             })
-            mail.SendEmail({user: req.body.name, options: search_options, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
+            //mail.SendEmail({user: req.body.name, options: search_options, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
             leadsMailer.SendEmail({user: req.body.name, options: search_options, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
         }
         else if(email_list){
@@ -36,7 +36,7 @@ const doSearch = async (req, res) =>{
                     options = {...options, platform: db_platform[platform]}
                     return options
                 })
-                mail.SendEmail({user: req.body.name, options: search_options, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
+                // mail.SendEmail({user: req.body.name, options: search_options, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
                 leadsMailer.SendEmail({user: req.body.name, options: search_options, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
             }
         }
@@ -89,12 +89,15 @@ export const doSearchHandler = async (user_id, search_params, spoki_active, call
                         console.log("Results found: " + returnData.length)
                         var nw = duplicates.concat(newDuplicates);
                         await search.writeDuplicates(nw, db)
-                        csvData.push(returnData)
+                        csvData.push(returnData);
+                        // Scrittura di un JSON per visualizzare l'output di csvData
+                        /*const jsonCsvData = JSON.stringify(csvData);
+                        fs.writeFileSync('csvData.json', jsonCsvData, 'utf-8');*/
                         loop_counter++
                         if(loop_counter === Object.entries(search_params).length){
                             await writeCsv(csvData, search_params, db, user_id, spoki_active, (csv_file) =>{
                                 if (typeof callback == "function") callback(csv_file);
-                            })
+                            });
                         }
                     })
                 })
@@ -120,18 +123,34 @@ async function writeCsv(data, searchOptions, db, user_id, spoki_active, callback
     const headers = ["Veicolo (Marca Modello Versione)", "Trattativa", "Nominativo", "Indirizzo", "Località", "Tel", "Cel", "Mail", "WebLink", "Nota_1", "Nota_2", "Nota_3", "Nota_4", "Nota_5", "PrezzoMin", "PrezzoMax"];
     fs.writeSync(fp, headers.join(";") + "\n");
     let cnt = 0;
+    let results = []
+    // Suddivisione dei risultati dentro ogni platform_index
     data.forEach((platform_index) => {
-        platform_index.forEach((item) =>{
+        let platform;
+        switch (user_id) {
+            case 19:
+                platform = platform_index.slice(0, Math.ceil(platform_index.length / 2));
+                break;
+            case 36:
+                platform = platform_index.slice(Math.ceil(platform_index.length / 2));
+                break;
+            default:
+                platform = platform_index;
+                break;
+        };
+        platform.forEach((item) =>{
+            results.push(item.id);
             cnt++;
             item.advertiser_name = item.advertiser_name || "Gentile Cliente";
             const field = [item.subject, "A", item.advertiser_name, "", item.geo_town, "", item.advertiser_phone, "", item.url, item.mileage_scalar, item.fuel, item.pollution, "", "", "", item.price];
             fs.writeSync(fp, field.join(";") + "\n");
-        })
+        });
     });
+    
     fs.closeSync(fp);
-    var q = "insert into searches (user_id, search_filename, search_path, search_options, search_results, search_date, SpokiSchedActive) values( ? , ?, ?, ?, ?, ?, ?)"
+    var q = "insert into searches (user_id, search_filename, search_path, search_options, search_results, search_date, SpokiSchedActive, results) values( ? , ?, ?, ?, ?, ?, ?, ?)"
     try{
-        await db.query(q, [user_id, fileName, `${filePath}/${fileName}`, searchOptions, cnt, (new Date(dtNow).toISOString().split('T').join(" ").replace("Z", "")).slice(0, 19), spoki_active])
+        await db.query(q, [user_id, fileName, `${filePath}/${fileName}`, searchOptions, cnt, (new Date(dtNow).toISOString().split('T').join(" ").replace("Z", "")).slice(0, 19), spoki_active, JSON.stringify(results)])
         const response = {
             fileName: fileName,
             fileNamePath: `${filePath}/${fileName}`,
