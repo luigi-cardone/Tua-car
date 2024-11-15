@@ -25,7 +25,7 @@ const doSearch = async (req, res) =>{
                 options = {...options, platform: db_platform[platform]}
                 return options
             })
-            mail.SendEmail({user: req.body.name, options: search_options, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
+            //mail.SendEmail({user: req.body.name, options: search_options, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
             leadsMailer.SendEmail({user: req.body.name, options: search_options, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
         }
         else if(email_list){
@@ -36,7 +36,7 @@ const doSearch = async (req, res) =>{
                     options = {...options, platform: db_platform[platform]}
                     return options
                 })
-                mail.SendEmail({user: req.body.name, options: search_options, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
+                // mail.SendEmail({user: req.body.name, options: search_options, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
                 leadsMailer.SendEmail({user: req.body.name, options: search_options, fileName: csvFile?.fileName, filePath: csvFile?.fileNamePath})
             }
         }
@@ -48,7 +48,7 @@ const doSearch = async (req, res) =>{
 export const doSearchHandler = async (user_id, search_params, spoki_active, callback) =>{
     const csvData = []
     var loop_counter = 0
-    if(Object.keys(search_params).length > 0){
+    if(search_params !== {}){
         Object.entries(search_params).forEach(([platform, platform_params]) =>{
             const search = new Search({...platform_params, user_id : user_id})
             const search_query = search.fabricateSearchQuery()
@@ -89,7 +89,7 @@ export const doSearchHandler = async (user_id, search_params, spoki_active, call
                         console.log("Results found: " + returnData.length)
                         var nw = duplicates.concat(newDuplicates);
                         await search.writeDuplicates(nw, db)
-                        csvData.push(returnData)
+                        csvData.push(returnData);
                         // Scrittura di un JSON per visualizzare l'output di csvData
                         /*const jsonCsvData = JSON.stringify(csvData);
                         fs.writeFileSync('csvData.json', jsonCsvData, 'utf-8');*/
@@ -97,7 +97,7 @@ export const doSearchHandler = async (user_id, search_params, spoki_active, call
                         if(loop_counter === Object.entries(search_params).length){
                             await writeCsv(csvData, search_params, db, user_id, spoki_active, (csv_file) =>{
                                 if (typeof callback == "function") callback(csv_file);
-                            })
+                            });
                         }
                     })
                 })
@@ -146,11 +146,11 @@ async function writeCsv(data, searchOptions, db, user_id, spoki_active, callback
             fs.writeSync(fp, field.join(";") + "\n");
         });
     });
-
+    
     fs.closeSync(fp);
-    var q = "insert into searches (user_id, search_filename, search_path, search_options, search_results, search_date, SpokiSchedActive) values( ? , ?, ?, ?, ?, ?, ?)"
+    var q = "insert into searches (user_id, search_filename, search_path, search_options, search_results, search_date, SpokiSchedActive, results) values( ? , ?, ?, ?, ?, ?, ?, ?)"
     try{
-        await db.query(q, [user_id, fileName, `${filePath}/${fileName}`, searchOptions, cnt, (new Date(dtNow).toISOString().split('T').join(" ").replace("Z", "")).slice(0, 19), spoki_active])
+        await db.query(q, [user_id, fileName, `${filePath}/${fileName}`, searchOptions, cnt, (new Date(dtNow).toISOString().split('T').join(" ").replace("Z", "")).slice(0, 19), spoki_active, JSON.stringify(results)])
         const response = {
             fileName: fileName,
             fileNamePath: `${filePath}/${fileName}`,
