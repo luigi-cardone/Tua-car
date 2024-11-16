@@ -27,27 +27,25 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express()
-// General middleware
-app.use(express.json());
-app.use(credentials);
-app.use(cors(corsOptions));
-app.use(cookieParser());
+app.use(express.json())
 
-// Unprotected routes
-app.use('/register', register);
-app.use('/login', login);
-app.use('/refresh', refresh);
-app.use('/logout', logout);
+app.use(credentials)
+app.use(cors(corsOptions))
+app.use(cookieParser())
 
-// Protected routes (apply `verifyJWT` only here)
-app.use('/geoData', verifyJWT, geoData);
-app.use('/users', verifyJWT, users);
-app.use('/searches', verifyJWT, searches);
-app.use('/user', verifyJWT, user);
-app.use('/search', verifyJWT, search);
-app.use('/scheduledSearch', verifyJWT, scheduledSearch);
-app.use('/deleteSchedule', verifyJWT, deleteSchedule);
-app.use('/towns', verifyJWT, towns);
+app.use(express.static(path.join(__dirname + "/public")))
+app.use('/register', register)
+app.use('/login', login)
+app.use('/refresh', refresh)
+app.use('/logout', logout)
+app.use('/geoData', geoData)
+app.use('/users', users)
+app.use('/searches', searches)
+app.use('/user', user)
+app.use('/search', search)
+app.use('/scheduledSearch', scheduledSearch)
+app.use('/deleteSchedule', deleteSchedule)
+app.use('/towns', towns)
 
 //EDITED
 app.get("/export", (req, res) => {
@@ -76,18 +74,14 @@ app.post('/webfiles/exports/', (req, res) =>{
     const file_path = req.body.file_path
     res.sendFile("./webfiles/exports/"+file_path, {root: __dirname})
 })
-
-// Serve static files
-app.use(express.static(path.join(__dirname, '/public')));
-
-// Fallback route for SPA (does not require verifyJWT)
-app.get('/*', (req, res) => {
-    res.sendFile(path.join(__dirname, '/public/index.html'), (err) => {
-        if (err) {
-            res.status(500).send(err);
-        }
-    });
-});
+app.get('/*', function(req, res) {
+    res.sendFile(path.join(__dirname, '/public/index.html'), function(err) {
+      if (err) {
+        res.status(500).send(err)
+      }
+    })
+  })
+app.use(verifyJWT)
 
 app.listen(process.env.PORT || 8000, ()=>{
     console.log("Backend started")
