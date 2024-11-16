@@ -1,1 +1,0 @@
-dtNow.getTime() - ts_hhmmBefore
